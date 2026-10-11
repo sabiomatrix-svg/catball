@@ -6,7 +6,9 @@ extends Node
 
 signal purchased(skin_id: String)
 signal skin_selected(skin_id: String)
-signal renamed(skin_id: String)
+# Не "renamed": у Node уже есть встроенный сигнал с таким именем,
+# и объявление своего роняет скрипт целиком (Parse Error).
+signal name_changed(skin_id: String)
 
 var skins: Array[Dictionary] = [
 	{"id": "classic", "name": "Tabby", "cost": 0, "color": Color8(242, 166, 90), "pattern": "stripes"},
@@ -46,7 +48,7 @@ func set_custom_name(skin_id: String, new_name: String) -> void:
 	else:
 		names[skin_id] = trimmed.substr(0, 16)
 	SaveManager.set_value("cat_names", names)
-	renamed.emit(skin_id)
+	name_changed.emit(skin_id)
 
 
 func get_skin(skin_id: String) -> Dictionary:

@@ -20,7 +20,7 @@ var _renaming_id: String = ""
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
 	ShopCatalog.skin_selected.connect(_on_catalog_changed)
-	ShopCatalog.renamed.connect(_on_catalog_changed)
+	ShopCatalog.name_changed.connect(_on_catalog_changed)
 	rename_ok.pressed.connect(_on_rename_confirmed)
 	rename_cancel.pressed.connect(_close_rename)
 	rename_field.text_submitted.connect(func(_t): _on_rename_confirmed())
