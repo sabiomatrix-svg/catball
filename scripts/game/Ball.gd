@@ -1,6 +1,6 @@
-extends RigidBody2D
+extends Node2D
 
-## Кот (контейнер логики/коллизии — вся отрисовка в CatVisual.gd, дочернем узле).
+## Кот (логика и позиция — вся отрисовка в CatVisual.gd, дочернем узле).
 ## Тач в НИЖНЕЙ ЧАСТИ ЭКРАНА (LOWER_ZONE_FRACTION, не обязательно по коту —
 ## маленькая мишень неудобна ребёнку) начинает прицеливание: драг в любую
 ## сторону задаёт одновременно направление (куда тянешь — туда и летит,
@@ -10,10 +10,11 @@ extends RigidBody2D
 ## JoystickHint (не ребёнок, HUD-узел, назначается извне) — чисто визуальная
 ## подсказка "тяни здесь", прячется на время заряда.
 ##
-## Полёт — НЕ гравитационная дуга RigidBody2D, а прямая линия до точки,
-## которую даёт текущая сила, со сглаживанием/остановкой (Tween, EASE_OUT).
-## Кот всю дорогу остаётся frozen (кинематически переставляется), физика
-## нужна только для Area2D-детекции попадания.
+## Полёт — прямая линия до точки, которую даёт текущая сила, со
+## сглаживанием/остановкой (Tween, EASE_OUT). Физического движка в игре
+## нет совсем: кот — обычный Node2D, которому Tween меняет global_position.
+## Попадание считает GameplayController проверкой расстояния до коробки
+## (Area2D такое "телепортирующееся" тело не ловил — см. его комментарий).
 ##
 ## Калибровка силы: верх экрана = 90% шкалы, 0% = броска нет совсем, между
 ## ними — линейно. Дистанция при прямом броске вверх = (power/0.9) *
@@ -62,9 +63,8 @@ var _visual_tween: Tween = null
 @onready var cat_visual := $CatVisual
 
 
-func _ready() -> void:
-	add_to_group("ball")
-	freeze = true
+func is_flying() -> bool:
+	return state == State.FLYING
 
 
 func setup(start_pos: Vector2, color: Color) -> void:
@@ -221,8 +221,6 @@ func reset_to_start() -> void:
 	cat_visual.scale = Vector2.ONE
 	cat_visual.rotation = 0.0
 	state = State.IDLE
-	linear_velocity = Vector2.ZERO
-	angular_velocity = 0.0
 	global_position = start_position
 	rotation = 0.0
 	touch_index = -1

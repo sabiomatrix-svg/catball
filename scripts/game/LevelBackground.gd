@@ -47,20 +47,53 @@ func _draw() -> void:
 			_draw_room(s)
 
 
-func _draw_room(s: Vector2) -> void:
-	var wall_color := Color8(224, 216, 199)
-	var wall_shade := Color8(210, 201, 183)
-	var floor_color := Color8(188, 146, 100)
-	var floor_shade := Color8(168, 126, 84)
-	var baseboard := Color8(240, 235, 224)
+## Высоты полок как доли высоты экрана (сверху вниз). Коробка ставится
+## донышком ровно на одну из них — см. GameplayController.
+const SHELF_FRACTIONS := [0.26, 0.42, 0.58]
+const SHELF_THICKNESS := 10.0
 
-	var floor_top := s.y * 0.74
+
+func shelf_y(index: int, viewport_height: float) -> float:
+	var i := clampi(index, 0, SHELF_FRACTIONS.size() - 1)
+	return float(SHELF_FRACTIONS[i]) * viewport_height
+
+
+func shelf_count() -> int:
+	return SHELF_FRACTIONS.size()
+
+
+func _draw_room(s: Vector2) -> void:
+	var wall_color := Color8(58, 52, 64)
+	var wall_shade := Color8(48, 43, 54)
+	var floor_color := Color8(104, 76, 52)
+	var floor_shade := Color8(88, 63, 43)
+	var baseboard := Color8(40, 36, 46)
+	var shelf_color := Color8(146, 106, 70)
+	var shelf_edge := Color8(108, 76, 48)
+	var bracket_color := Color8(70, 62, 78)
+
+	var floor_top := s.y * 0.80
 
 	draw_rect(Rect2(Vector2.ZERO, Vector2(s.x, floor_top)), wall_color, true)
 	var panel_count := 4
 	for i in range(1, panel_count):
 		var x := s.x * (float(i) / panel_count)
 		draw_line(Vector2(x, 0), Vector2(x, floor_top), wall_shade, 2.0)
+
+	# полки на стене — на них стоит коробка
+	for i in range(SHELF_FRACTIONS.size()):
+		var y := float(SHELF_FRACTIONS[i]) * s.y
+		var margin := s.x * 0.08
+		var plank := Rect2(margin, y, s.x - margin * 2.0, SHELF_THICKNESS)
+		draw_rect(plank, shelf_color, true)
+		draw_rect(plank, shelf_edge, false, 2.0)
+		# кронштейны
+		for bx in [margin + s.x * 0.06, s.x - margin - s.x * 0.06]:
+			draw_colored_polygon(PackedVector2Array([
+				Vector2(bx - 6, y + SHELF_THICKNESS),
+				Vector2(bx + 6, y + SHELF_THICKNESS),
+				Vector2(bx, y + SHELF_THICKNESS + 18),
+			]), bracket_color)
 
 	draw_rect(Rect2(Vector2(0, floor_top), Vector2(s.x, s.y - floor_top)), floor_color, true)
 	var plank_count := 6
@@ -70,7 +103,7 @@ func _draw_room(s: Vector2) -> void:
 		var x_bottom := s.x * t - s.x * 0.05
 		draw_line(Vector2(x_top, floor_top), Vector2(x_bottom, s.y), floor_shade, 2.0)
 
-	draw_rect(Rect2(Vector2(0, floor_top - 5), Vector2(s.x, 9)), baseboard, true)
+	draw_rect(Rect2(Vector2(0, floor_top - 6), Vector2(s.x, 10)), baseboard, true)
 
 
 func _draw_field(s: Vector2) -> void:

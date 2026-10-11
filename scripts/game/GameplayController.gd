@@ -1,20 +1,21 @@
 extends Node2D
 
-## Дирижёр сцены уровня: расставляет кота и коробку (случайная позиция по
-## сетке экрана, сид = номер уровня — воспроизводимо при реплее), выставляет
-## тему фона, обновляет HUD, обрабатывает победу и кнопку-иконку "Домой".
+## Дирижёр сцены уровня: ставит кота на пол, коробку — на одну из полок
+## (случайно, сид = номер уровня, значит реплей того же уровня выглядит
+## одинаково), выставляет тему фона, обновляет HUD и обрабатывает победу.
+##
+## ПОПАДАНИЕ СЧИТАЕТСЯ ЗДЕСЬ, обычной проверкой расстояния в _physics_process.
+## Раньше это был Area2D.body_entered — и он не срабатывал ни разу: кот
+## двигается скриптовым Tween'ом (прямое присваивание global_position),
+## для физического сервера это "телепортация" статичного тела, перекрытие
+## не регистрируется. Физики в игре больше нет совсем, и проверка стала
+## детерминированной: расстояние от кота до центра коробки <= её радиуса.
 
-const GRID_COLS := 3
-const GRID_ROWS := 3
-const GRID_X_MIN := 0.20
-const GRID_X_MAX := 0.80
-const GRID_Y_MIN := 0.13
-const GRID_Y_MAX := 0.40
 const SCORE_REVEAL_PAUSE := 0.5
 
 @onready var background: Node2D = $Background
-@onready var ball: RigidBody2D = $Ball
-@onready var ring_sensor: Area2D = $RingSensor
+@onready var ball: Node2D = $Ball
+@onready var ring_sensor: Node2D = $RingSensor
 
 @onready var score_label: Label = $HUD/Root/TopRight/ScoreLabel
 @onready var stars_label: Label = $HUD/Root/TopRight/StarsLabel
@@ -29,6 +30,7 @@ const SCORE_REVEAL_PAUSE := 0.5
 @onready var home_button_2: Button = $HUD/Root/LevelCompletePanel/Box/HomeButton
 
 var level_id: int = 1
+var scoring_armed: bool = true
 
 
 func _ready() -> void:
@@ -47,15 +49,14 @@ func _ready() -> void:
 	ball.power_meter = power_meter
 	ball.joystick_hint = joystick_hint
 	var skin: Dictionary = ShopCatalog.get_skin(GameState.selected_skin)
-	ball.setup(Vector2(float(config["ball_x"]) * vp.x, vp.y * 0.82), skin["color"])
+	ball.setup(Vector2(float(config["ball_x"]) * vp.x, vp.y * 0.86), skin["color"])
 
-	ring_sensor.position = _random_ring_position(level_id, vp)
-	ring_sensor.setup(float(config["ring_w"]) * vp.x * 0.5)
+	var box_radius := float(config["ring_w"]) * vp.x * 0.5
+	ring_sensor.setup(box_radius)
+	ring_sensor.position = _box_position_on_shelf(level_id, vp, box_radius)
 
 	_update_score_labels()
 
-	ring_sensor.scored.connect(_on_scored)
-	ball.reset_done.connect(func(): ring_sensor.rearm())
 	home_button.pressed.connect(_on_home_pressed)
 	next_button.pressed.connect(_on_next_pressed)
 	replay_button.pressed.connect(_on_restart_pressed)
@@ -65,18 +66,29 @@ func _ready() -> void:
 	GameState.stars_changed.connect(func(_s): _update_score_labels())
 
 
-func _random_ring_position(seed_level_id: int, vp: Vector2) -> Vector2:
+## _process, а не _physics_process: позицию кота двигает Tween, а он
+## обновляет свойство в кадре отрисовки — так мы видим каждую промежуточную
+## точку полёта и не можем "перескочить" коробку между проверками.
+func _process(_delta: float) -> void:
+	if not scoring_armed:
+		return
+	if not ball.is_flying():
+		return
+	if ring_sensor.contains_point(ball.global_position):
+		scoring_armed = false
+		_on_scored()
+
+
+## Коробка стоит донышком на одной из полок; полка и место вдоль неё
+## выбираются случайно, но детерминированно по номеру уровня.
+func _box_position_on_shelf(seed_level_id: int, vp: Vector2, box_radius: float) -> Vector2:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_level_id * 97 + 13
-	var col := rng.randi_range(0, GRID_COLS - 1)
-	var row := rng.randi_range(0, GRID_ROWS - 1)
-	var cell_w := (GRID_X_MAX - GRID_X_MIN) / GRID_COLS
-	var cell_h := (GRID_Y_MAX - GRID_Y_MIN) / GRID_ROWS
-	var jitter_x := rng.randf_range(0.2, 0.8)
-	var jitter_y := rng.randf_range(0.2, 0.8)
-	var fx := GRID_X_MIN + cell_w * (col + jitter_x)
-	var fy := GRID_Y_MIN + cell_h * (row + jitter_y)
-	return Vector2(fx * vp.x, fy * vp.y)
+	var shelf_index := rng.randi_range(0, background.shelf_count() - 1)
+	var shelf_top := background.shelf_y(shelf_index, vp.y)
+	var margin := maxf(box_radius * 1.1, vp.x * 0.16)
+	var x := rng.randf_range(margin, vp.x - margin)
+	return Vector2(x, shelf_top - ring_sensor.bottom_offset())
 
 
 func _update_score_labels() -> void:
@@ -85,7 +97,9 @@ func _update_score_labels() -> void:
 
 
 func _on_scored() -> void:
-	print("[GameplayController] _on_scored level=", level_id)
+	print("[GameplayController] scored! level=", level_id,
+		" cat=", ball.global_position, " box=", ring_sensor.global_position,
+		" hit_radius=", ring_sensor.hit_radius())
 	ball.stop_flight_in_place()
 	GameState.complete_level(level_id)
 	complete_text.text = "Level complete!\n+10 points, +3 stars"
