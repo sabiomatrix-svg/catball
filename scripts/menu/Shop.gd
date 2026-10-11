@@ -43,7 +43,7 @@ func _make_row(skin: Dictionary) -> Control:
 	row.add_child(avatar)
 
 	var name_label := Label.new()
-	name_label.text = String(skin["name"])
+	name_label.text = ShopCatalog.get_display_name(String(skin["id"]))
 	name_label.add_theme_font_size_override("font_size", 24)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(name_label)

@@ -6,6 +6,7 @@ extends Node
 
 signal purchased(skin_id: String)
 signal skin_selected(skin_id: String)
+signal renamed(skin_id: String)
 
 var skins: Array[Dictionary] = [
 	{"id": "classic", "name": "Tabby", "cost": 0, "color": Color8(242, 166, 90), "pattern": "stripes"},
@@ -25,6 +26,27 @@ var skins: Array[Dictionary] = [
 	{"id": "berry", "name": "Berry", "cost": 140, "color": Color8(166, 86, 140), "pattern": "patch"},
 	{"id": "frost", "name": "Frost", "cost": 150, "color": Color8(206, 226, 238), "pattern": "siamese"},
 ]
+
+
+## Имя кота можно переименовать в галерее; своё имя хранится в сохранении,
+## в каталоге остаётся имя по умолчанию.
+func get_display_name(skin_id: String) -> String:
+	var names: Dictionary = SaveManager.get_value("cat_names", {})
+	var custom := String(names.get(skin_id, ""))
+	if custom.strip_edges() != "":
+		return custom
+	return String(get_skin(skin_id)["name"])
+
+
+func set_custom_name(skin_id: String, new_name: String) -> void:
+	var names: Dictionary = SaveManager.get_value("cat_names", {}).duplicate(true)
+	var trimmed := new_name.strip_edges()
+	if trimmed == "":
+		names.erase(skin_id)
+	else:
+		names[skin_id] = trimmed.substr(0, 16)
+	SaveManager.set_value("cat_names", names)
+	renamed.emit(skin_id)
 
 
 func get_skin(skin_id: String) -> Dictionary:

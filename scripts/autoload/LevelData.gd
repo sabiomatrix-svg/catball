@@ -13,6 +13,8 @@ const LEVELS_PATH := "res://data/levels.json"
 const MIN_RING_W := 0.10
 const RING_SHRINK_PER_LEVEL := 0.003
 const BALL_X_CYCLE := [0.5, 0.6, 0.4, 0.55, 0.45, 0.65, 0.35]
+const MIN_HIT_SCALE := 0.40
+const BOX_STYLES := 5
 
 var levels: Array = []
 
@@ -60,3 +62,24 @@ func _generate_level(level_id: int) -> Dictionary:
 
 func has_level(level_id: int) -> bool:
 	return level_id >= 1
+
+
+## Зона попадания сужается каждые 10 уровней: первые 30 уровней шаг -5%,
+## следующие 30 шаг -2%, дальше -1%. Нижний предел нужен, чтобы на
+## бесконечных уровнях зона не выродилась в точку.
+func hit_scale_for_level(level_id: int) -> float:
+	var block := int(level_id / 10)
+	var scale := 1.0
+	for b in range(1, block + 1):
+		if b <= 3:
+			scale -= 0.05
+		elif b <= 6:
+			scale -= 0.02
+		else:
+			scale -= 0.01
+	return maxf(MIN_HIT_SCALE, scale)
+
+
+## Вид коробки тоже меняется каждые 10 уровней.
+func box_style_for_level(level_id: int) -> int:
+	return int(level_id / 10) % BOX_STYLES

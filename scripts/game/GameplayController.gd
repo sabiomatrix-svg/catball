@@ -54,7 +54,9 @@ func _ready() -> void:
 		skin["color"], String(skin.get("pattern", "solid")))
 
 	var box_radius := float(config["ring_w"]) * vp.x * 0.5
-	ring_sensor.setup(box_radius)
+	var box_style: int = LevelData.box_style_for_level(level_id)
+	var zone_scale: float = LevelData.hit_scale_for_level(level_id)
+	ring_sensor.setup(box_radius, box_style, zone_scale)
 	ring_sensor.position = _box_position_on_shelf(level_id, vp, box_radius)
 
 	level_label.text = "Level %d" % level_id
@@ -101,6 +103,7 @@ func _update_score_labels() -> void:
 
 func _on_scored() -> void:
 	print("[GameplayController] scored! level=", level_id,
+		" zone_scale=", LevelData.hit_scale_for_level(level_id),
 		" cat=", ball.global_position, " box=", ring_sensor.global_position,
 		" hit_radius=", ring_sensor.hit_radius())
 	ball.stop_flight_in_place()

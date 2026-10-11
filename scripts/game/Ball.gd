@@ -35,7 +35,10 @@ signal reset_done
 const LOWER_ZONE_FRACTION := 0.55
 const MAX_ANGLE_DEG := 60.0
 const MIN_DRAG_FOR_AIM := 6.0
-const MAX_DRAG_FRACTION := 0.30
+# Длина драга до 100% силы. Была 0.30 высоты экрана (~480 px на 1600) —
+# столько пальцем редко протягивают, и шкала почти никогда не доходила
+# до максимума, из-за чего кот "еле допрыгивал".
+const MAX_DRAG_FRACTION := 0.20
 const POWER_TO_TOP_FRACTION := 0.9
 const MIN_LAUNCH_DISTANCE := 4.0
 const FLIGHT_SPEED := 1400.0

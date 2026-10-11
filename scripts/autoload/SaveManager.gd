@@ -23,6 +23,7 @@ func _default_data() -> Dictionary:
 		"music_volume": 1.0,
 		"sfx_volume": 1.0,
 		"leaderboard": [],
+		"cat_names": {},
 	}
 
 
