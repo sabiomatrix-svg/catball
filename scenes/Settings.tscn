@@ -70,3 +70,67 @@ min_value = 0.0
 max_value = 1.0
 step = 0.05
 value = 1.0
+
+[node name="ResetButton" type="Button" parent="Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 64)
+theme_override_font_sizes/font_size = 24
+text = "Start from level 1"
+
+[node name="ResetHint" type="Label" parent="Content"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.72, 0.72, 0.76, 1)
+text = "Stars and cats are kept"
+
+[node name="ConfirmDialog" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Dim" type="ColorRect" parent="ConfirmDialog"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.6)
+
+[node name="Box" type="VBoxContainer" parent="ConfirmDialog"]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -130.0
+offset_right = 230.0
+offset_bottom = 130.0
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="ConfirmDialog/Box"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Start again from level 1?
+Stars and cats are kept."
+
+[node name="Buttons" type="HBoxContainer" parent="ConfirmDialog/Box"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="YesButton" type="Button" parent="ConfirmDialog/Box/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 60)
+theme_override_font_sizes/font_size = 26
+text = "Yes"
+
+[node name="NoButton" type="Button" parent="ConfirmDialog/Box/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 60)
+theme_override_font_sizes/font_size = 26
+text = "Cancel"

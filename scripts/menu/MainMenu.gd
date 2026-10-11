@@ -12,6 +12,9 @@ extends Control
 func _ready() -> void:
 	score_label.text = "Score: %d" % GameState.score
 	stars_label.text = "★ %d" % GameState.stars
+	# Видно, с какого уровня продолжится игра — иначе непонятно, что
+	# "Play" не начинает заново.
+	play_button.text = "Play  ·  Level %d" % GameState.current_level
 	play_button.pressed.connect(_on_play_pressed)
 	cats_button.pressed.connect(_on_cats_pressed)
 	shop_button.pressed.connect(_on_shop_pressed)
