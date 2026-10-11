@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/GameplayController.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/game/Ball.gd" id="2"]
@@ -9,6 +9,20 @@
 [ext_resource type="Script" path="res://scripts/game/CatVisual.gd" id="7"]
 [ext_resource type="Script" path="res://scripts/game/LevelBackground.gd" id="8"]
 [ext_resource type="Script" path="res://scripts/game/JoystickHint.gd" id="9"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_green"]
+bg_color = Color(0.21, 0.66, 0.33, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_green_pressed"]
+bg_color = Color(0.16, 0.52, 0.26, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1")
@@ -125,36 +139,39 @@ color = Color(0, 0, 0, 0.55)
 
 [node name="Box" type="VBoxContainer" parent="HUD/Root/LevelCompletePanel"]
 layout_mode = 1
-anchors_preset = 8
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.42
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -160.0
-offset_top = -140.0
-offset_right = 160.0
-offset_bottom = 140.0
-theme_override_constants/separation = 18
+anchor_bottom = 0.42
+offset_left = -200.0
+offset_top = -70.0
+offset_right = 200.0
+offset_bottom = 70.0
+theme_override_constants/separation = 10
 
 [node name="ResultLabel" type="Label" parent="HUD/Root/LevelCompletePanel/Box"]
 layout_mode = 2
 horizontal_alignment = 1
 autowrap_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 text = "Level complete!"
 
-[node name="NextButton" type="Button" parent="HUD/Root/LevelCompletePanel/Box"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 26
+[node name="NextButton" type="Button" parent="HUD/Root/LevelCompletePanel"]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -190.0
+offset_right = 220.0
+offset_bottom = -90.0
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.9, 1, 0.9, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_green")
+theme_override_styles/hover = SubResource("StyleBoxFlat_green")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green_pressed")
 text = "Next level"
-
-[node name="ReplayButton" type="Button" parent="HUD/Root/LevelCompletePanel/Box"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 26
-text = "Play again"
-
-[node name="HomeButton" type="Button" parent="HUD/Root/LevelCompletePanel/Box"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 26
-text = "Home"

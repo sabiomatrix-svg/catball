@@ -25,9 +25,7 @@ const SCORE_REVEAL_PAUSE := 0.5
 
 @onready var complete_panel: Control = $HUD/Root/LevelCompletePanel
 @onready var complete_text: Label = $HUD/Root/LevelCompletePanel/Box/ResultLabel
-@onready var next_button: Button = $HUD/Root/LevelCompletePanel/Box/NextButton
-@onready var replay_button: Button = $HUD/Root/LevelCompletePanel/Box/ReplayButton
-@onready var home_button_2: Button = $HUD/Root/LevelCompletePanel/Box/HomeButton
+@onready var next_button: Button = $HUD/Root/LevelCompletePanel/NextButton
 
 var level_id: int = 1
 var scoring_armed: bool = true
@@ -58,9 +56,7 @@ func _ready() -> void:
 	_update_score_labels()
 
 	home_button.pressed.connect(_on_home_pressed)
-	next_button.pressed.connect(_on_next_pressed)
-	replay_button.pressed.connect(_on_restart_pressed)
-	home_button_2.pressed.connect(_on_home_pressed)
+	next_button.pressed.connect(_on_next_or_home_pressed)
 
 	GameState.score_changed.connect(func(_s): _update_score_labels())
 	GameState.stars_changed.connect(func(_s): _update_score_labels())
@@ -105,16 +101,13 @@ func _on_scored() -> void:
 	ball.stop_flight_in_place()
 	GameState.complete_level(level_id)
 	complete_text.text = "Level complete!\n+10 points, +3 stars"
-	next_button.visible = LevelData.has_level(level_id + 1)
+	# Кнопка одна: если следующий уровень есть — ведёт туда, если уровни
+	# кончились — становится выходом в меню (чтобы попап не запирал игру).
+	next_button.text = "Next level" if LevelData.has_level(level_id + 1) else "Home"
 	await get_tree().create_timer(SCORE_REVEAL_PAUSE).timeout
 	ball.reset_to_start()
 	complete_panel.visible = true
 	get_tree().paused = true
-
-
-func _on_restart_pressed() -> void:
-	get_tree().paused = false
-	get_tree().reload_current_scene()
 
 
 func _on_home_pressed() -> void:
@@ -122,7 +115,10 @@ func _on_home_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 
 
-func _on_next_pressed() -> void:
+func _on_next_or_home_pressed() -> void:
 	get_tree().paused = false
-	GameState.set_current_level(level_id + 1)
-	get_tree().reload_current_scene()
+	if LevelData.has_level(level_id + 1):
+		GameState.set_current_level(level_id + 1)
+		get_tree().reload_current_scene()
+	else:
+		get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

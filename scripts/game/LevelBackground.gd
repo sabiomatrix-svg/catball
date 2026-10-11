@@ -3,22 +3,28 @@ extends Node2D
 ## Фон уровня. ВАЖНО: это Node2D, а не Control — узел лежит под корневым
 ## Node2D сцены Game, а Control в таком родителе НЕ растягивается по
 ## вьюпорту (анкеры считаются от родителя-Control; под Node2D размер
-## остаётся (0,0), и рисовать было буквально нечего — поэтому фона не было
-## видно вообще ни в одной сборке). Node2D рисует в координатах канваса,
-## размер берём прямо из вьюпорта.
+## остаётся (0,0), и рисовать нечего — из-за этого фона не было видно).
+## Node2D рисует в координатах канваса, размер берём прямо из вьюпорта.
 ##
-## Тема меняется каждые LEVELS_PER_THEME уровней (комната → поле → лес →
-## снова комната...). Сейчас 10 уровней — все room, система готова расти
-## вместе с data/levels.json.
+## Тема меняется каждые LEVELS_PER_THEME уровней: комната → лес → город →
+## зима → космос, и дальше по кругу. 49 уровней = пять отрезков.
+##
+## В КАЖДОЙ теме рисуются три площадки на одних и тех же высотах
+## (SHELF_FRACTIONS) — полка, ветка, карниз, ледяной уступ, плита. Коробка
+## всегда ставится донышком на одну из них, и логика расстановки
+## (GameplayController) от темы не зависит.
 ##
 ## Control уже имеет встроенное свойство "theme" (UI-тема), поэтому свои
 ## enum/var названы SceneTheme/current_theme — на этом уже ловили
 ## "Parse Error: shadows a native class".
 
 const LEVELS_PER_THEME := 10
-const THEME_COUNT := 3
+const THEME_COUNT := 5
 
-enum SceneTheme { ROOM, FIELD, FOREST }
+const SHELF_FRACTIONS := [0.26, 0.42, 0.58]
+const SHELF_THICKNESS := 10.0
+
+enum SceneTheme { ROOM, FOREST, CITY, SNOW, SPACE }
 
 var current_theme: int = SceneTheme.ROOM
 
@@ -34,25 +40,6 @@ func set_theme_for_level(level_id: int) -> void:
 	queue_redraw()
 
 
-func _draw() -> void:
-	var s := get_viewport_rect().size
-	if s.x <= 0 or s.y <= 0:
-		return
-	match current_theme:
-		SceneTheme.FIELD:
-			_draw_field(s)
-		SceneTheme.FOREST:
-			_draw_forest(s)
-		_:
-			_draw_room(s)
-
-
-## Высоты полок как доли высоты экрана (сверху вниз). Коробка ставится
-## донышком ровно на одну из них — см. GameplayController.
-const SHELF_FRACTIONS := [0.26, 0.42, 0.58]
-const SHELF_THICKNESS := 10.0
-
-
 func shelf_y(index: int, viewport_height: float) -> float:
 	var i := clampi(index, 0, SHELF_FRACTIONS.size() - 1)
 	return float(SHELF_FRACTIONS[i]) * viewport_height
@@ -62,32 +49,31 @@ func shelf_count() -> int:
 	return SHELF_FRACTIONS.size()
 
 
-func _draw_room(s: Vector2) -> void:
-	var wall_color := Color8(58, 52, 64)
-	var wall_shade := Color8(48, 43, 54)
-	var floor_color := Color8(104, 76, 52)
-	var floor_shade := Color8(88, 63, 43)
-	var baseboard := Color8(40, 36, 46)
-	var shelf_color := Color8(146, 106, 70)
-	var shelf_edge := Color8(108, 76, 48)
-	var bracket_color := Color8(70, 62, 78)
+func _draw() -> void:
+	var s := get_viewport_rect().size
+	if s.x <= 0 or s.y <= 0:
+		return
+	match current_theme:
+		SceneTheme.FOREST:
+			_draw_forest(s)
+		SceneTheme.CITY:
+			_draw_city(s)
+		SceneTheme.SNOW:
+			_draw_snow(s)
+		SceneTheme.SPACE:
+			_draw_space(s)
+		_:
+			_draw_room(s)
 
-	var floor_top := s.y * 0.80
 
-	draw_rect(Rect2(Vector2.ZERO, Vector2(s.x, floor_top)), wall_color, true)
-	var panel_count := 4
-	for i in range(1, panel_count):
-		var x := s.x * (float(i) / panel_count)
-		draw_line(Vector2(x, 0), Vector2(x, floor_top), wall_shade, 2.0)
-
-	# полки на стене — на них стоит коробка
+## Общая форма площадки: доска во всю ширину с парой подпорок снизу.
+func _draw_platforms(s: Vector2, top_color: Color, edge_color: Color, bracket_color: Color) -> void:
 	for i in range(SHELF_FRACTIONS.size()):
 		var y := float(SHELF_FRACTIONS[i]) * s.y
 		var margin := s.x * 0.08
 		var plank := Rect2(margin, y, s.x - margin * 2.0, SHELF_THICKNESS)
-		draw_rect(plank, shelf_color, true)
-		draw_rect(plank, shelf_edge, false, 2.0)
-		# кронштейны
+		draw_rect(plank, top_color, true)
+		draw_rect(plank, edge_color, false, 2.0)
 		for bx in [margin + s.x * 0.06, s.x - margin - s.x * 0.06]:
 			draw_colored_polygon(PackedVector2Array([
 				Vector2(bx - 6, y + SHELF_THICKNESS),
@@ -95,57 +81,73 @@ func _draw_room(s: Vector2) -> void:
 				Vector2(bx, y + SHELF_THICKNESS + 18),
 			]), bracket_color)
 
+
+func _draw_floor(s: Vector2, floor_top: float, floor_color: Color, floor_shade: Color, trim: Color) -> void:
 	draw_rect(Rect2(Vector2(0, floor_top), Vector2(s.x, s.y - floor_top)), floor_color, true)
 	var plank_count := 6
 	for i in range(plank_count + 1):
 		var t := float(i) / plank_count
-		var x_top := s.x * t
-		var x_bottom := s.x * t - s.x * 0.05
-		draw_line(Vector2(x_top, floor_top), Vector2(x_bottom, s.y), floor_shade, 2.0)
-
-	draw_rect(Rect2(Vector2(0, floor_top - 6), Vector2(s.x, 10)), baseboard, true)
+		draw_line(Vector2(s.x * t, floor_top), Vector2(s.x * t - s.x * 0.05, s.y), floor_shade, 2.0)
+	draw_rect(Rect2(Vector2(0, floor_top - 6), Vector2(s.x, 10)), trim, true)
 
 
-func _draw_field(s: Vector2) -> void:
-	var sky_color := Color8(176, 214, 235)
-	var cloud_color := Color8(222, 240, 250)
-	var grass_color := Color8(140, 189, 92)
-	var grass_shade := Color8(118, 168, 74)
-
-	var horizon := s.y * 0.6
-	draw_rect(Rect2(Vector2.ZERO, Vector2(s.x, horizon)), sky_color, true)
-	for cx in [0.22, 0.68, 0.45]:
-		var cy := s.y * (0.1 if cx != 0.45 else 0.2)
-		var c := Vector2(s.x * cx, cy)
-		draw_circle(c, s.x * 0.07, cloud_color)
-		draw_circle(c + Vector2(s.x * 0.06, 2), s.x * 0.05, cloud_color)
-		draw_circle(c - Vector2(s.x * 0.06, -2), s.x * 0.045, cloud_color)
-
-	draw_rect(Rect2(Vector2(0, horizon), Vector2(s.x, s.y - horizon)), grass_color, true)
-	var blade_count := 7
-	for i in range(blade_count + 1):
-		var t := float(i) / blade_count
-		draw_line(Vector2(s.x * t, horizon), Vector2(s.x * t - s.x * 0.03, s.y), grass_shade, 2.0)
+func _draw_room(s: Vector2) -> void:
+	var floor_top := s.y * 0.80
+	draw_rect(Rect2(Vector2.ZERO, Vector2(s.x, floor_top)), Color8(58, 52, 64), true)
+	for i in range(1, 4):
+		var x := s.x * (float(i) / 4.0)
+		draw_line(Vector2(x, 0), Vector2(x, floor_top), Color8(48, 43, 54), 2.0)
+	_draw_platforms(s, Color8(146, 106, 70), Color8(108, 76, 48), Color8(70, 62, 78))
+	_draw_floor(s, floor_top, Color8(104, 76, 52), Color8(88, 63, 43), Color8(40, 36, 46))
 
 
 func _draw_forest(s: Vector2) -> void:
-	var sky_color := Color8(150, 186, 209)
-	var ground_color := Color8(96, 128, 78)
-	var tree_color := Color8(53, 82, 48)
-	var trunk_color := Color8(74, 54, 38)
+	var floor_top := s.y * 0.80
+	draw_rect(Rect2(Vector2.ZERO, Vector2(s.x, floor_top)), Color8(32, 48, 40), true)
+	# стволы деревьев на заднем плане
+	for i in range(5):
+		var x := s.x * (0.1 + 0.2 * i)
+		draw_rect(Rect2(Vector2(x - 14, 0), Vector2(28, floor_top)), Color8(44, 62, 48), true)
+	_draw_platforms(s, Color8(96, 70, 44), Color8(64, 46, 28), Color8(40, 58, 42))
+	_draw_floor(s, floor_top, Color8(62, 84, 54), Color8(50, 70, 44), Color8(34, 50, 34))
 
-	var horizon := s.y * 0.58
-	draw_rect(Rect2(Vector2.ZERO, Vector2(s.x, horizon)), sky_color, true)
-	draw_rect(Rect2(Vector2(0, horizon), Vector2(s.x, s.y - horizon)), ground_color, true)
 
-	var tree_count := 6
-	for i in range(tree_count):
-		var t := float(i) / (tree_count - 1)
-		var x := s.x * t
-		var trunk_h := s.y * 0.07
-		draw_rect(Rect2(Vector2(x - 4, horizon - trunk_h), Vector2(8, trunk_h + 6)), trunk_color, true)
-		draw_colored_polygon(PackedVector2Array([
-			Vector2(x, horizon - trunk_h - s.y * 0.17),
-			Vector2(x - s.x * 0.055, horizon - trunk_h),
-			Vector2(x + s.x * 0.055, horizon - trunk_h),
-		]), tree_color)
+func _draw_city(s: Vector2) -> void:
+	var floor_top := s.y * 0.80
+	draw_rect(Rect2(Vector2.ZERO, Vector2(s.x, floor_top)), Color8(28, 32, 52), true)
+	# окна дальних домов
+	for row in range(10):
+		for col in range(7):
+			var wx := s.x * (0.06 + 0.135 * col)
+			var wy := s.y * (0.03 + 0.072 * row)
+			if (row + col) % 3 != 0:
+				continue
+			draw_rect(Rect2(Vector2(wx, wy), Vector2(16, 22)), Color8(86, 92, 130), true)
+	_draw_platforms(s, Color8(108, 112, 138), Color8(74, 78, 102), Color8(52, 56, 80))
+	_draw_floor(s, floor_top, Color8(70, 72, 92), Color8(56, 58, 76), Color8(40, 42, 60))
+
+
+func _draw_snow(s: Vector2) -> void:
+	var floor_top := s.y * 0.80
+	draw_rect(Rect2(Vector2.ZERO, Vector2(s.x, floor_top)), Color8(46, 62, 86), true)
+	# снежинки
+	for i in range(28):
+		var fx := s.x * fposmod(float(i) * 0.137, 1.0)
+		var fy := floor_top * fposmod(float(i) * 0.291, 1.0)
+		draw_circle(Vector2(fx, fy), 3.0, Color(1, 1, 1, 0.45))
+	_draw_platforms(s, Color8(198, 222, 238), Color8(142, 170, 192), Color8(74, 96, 122))
+	_draw_floor(s, floor_top, Color8(214, 230, 242), Color8(186, 206, 224), Color8(150, 176, 198))
+
+
+func _draw_space(s: Vector2) -> void:
+	var floor_top := s.y * 0.80
+	draw_rect(Rect2(Vector2.ZERO, Vector2(s.x, floor_top)), Color8(18, 16, 34), true)
+	for i in range(40):
+		var sx := s.x * fposmod(float(i) * 0.173, 1.0)
+		var sy := floor_top * fposmod(float(i) * 0.219, 1.0)
+		var r := 1.5 if i % 3 else 2.5
+		draw_circle(Vector2(sx, sy), r, Color(1, 1, 1, 0.65))
+	# планета в углу
+	draw_circle(Vector2(s.x * 0.8, s.y * 0.12), s.x * 0.1, Color8(92, 68, 126))
+	_draw_platforms(s, Color8(120, 110, 160), Color8(84, 76, 118), Color8(56, 50, 84))
+	_draw_floor(s, floor_top, Color8(54, 48, 78), Color8(44, 39, 64), Color8(32, 28, 48))
