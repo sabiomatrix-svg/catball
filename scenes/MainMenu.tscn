@@ -13,16 +13,27 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.98, 0.93, 0.82, 1)
 
-[node name="StatsLabel" type="Label" parent="."]
+[node name="Stats" type="HBoxContainer" parent="."]
 layout_mode = 1
-anchor_right = 1.0
-offset_left = 16.0
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -120.0
 offset_top = 24.0
-offset_right = -16.0
+offset_right = 120.0
 offset_bottom = 60.0
-horizontal_alignment = 1
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="ScoreLabel" type="Label" parent="Stats"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Score: 0   ★ 0"
+text = "Score: 0"
+
+[node name="StarsLabel" type="Label" parent="Stats"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.83, 0.69, 0.22, 1)
+text = "★ 0"
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 1

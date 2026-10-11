@@ -22,7 +22,11 @@ func _ready() -> void:
 func setup(box_radius: float) -> void:
 	radius = box_radius
 	var shape := collision_shape.shape as CircleShape2D
-	shape.radius = radius * 0.6
+	# Зона засчитывания — размер самой коробки (раньше была заметно меньше
+	# видимого рисунка: 0.6*radius против фактического охвата ~radius по
+	# высоте и ~1.9*radius по ширине — кот визуально попадал в коробку,
+	# а гол не засчитывался).
+	shape.radius = radius
 	queue_redraw()
 
 

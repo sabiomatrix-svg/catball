@@ -1,12 +1,13 @@
 extends Control
 
 ## Простая процедурная иконка для HUD-кнопок (без внешних картинок,
-## по той же логике, что и остальная графика проекта).
+## по той же логике, что и остальная графика проекта). Белая, без подложки —
+## кнопка сама flat (см. Game.tscn), чтобы иконка читалась на любом фоне.
 
 enum Icon { RESTART, HOME }
 
-@export var icon: Icon = Icon.RESTART
-@export var glyph_color: Color = Color(0.25, 0.22, 0.18, 1.0)
+@export var icon: Icon = Icon.HOME
+@export var glyph_color: Color = Color(1.0, 1.0, 1.0, 1.0)
 
 
 func _ready() -> void:
@@ -38,17 +39,16 @@ func _draw_restart(center: Vector2, r: float) -> void:
 
 
 func _draw_home(center: Vector2, r: float) -> void:
+	# Широкая нависающая крыша (как у домика-будки), сплошной силуэт —
+	# без выреза под дверь: больше нет гарантированного цвета фона, под
+	# который можно было резать "окно".
 	var roof := PackedVector2Array([
-		center + Vector2(-r * 1.05, r * 0.05),
-		center + Vector2(0, -r * 1.15),
-		center + Vector2(r * 1.05, r * 0.05),
+		center + Vector2(-r * 1.3, r * 0.15),
+		center + Vector2(0, -r * 1.25),
+		center + Vector2(r * 1.3, r * 0.15),
 	])
 	draw_colored_polygon(roof, glyph_color)
 	var body_w := r * 1.5
-	var body_h := r * 1.1
-	var body_rect := Rect2(center.x - body_w * 0.5, center.y, body_w, body_h)
+	var body_h := r * 1.05
+	var body_rect := Rect2(center.x - body_w * 0.5, center.y - r * 0.05, body_w, body_h)
 	draw_rect(body_rect, glyph_color, true)
-	var door_w := r * 0.5
-	var door_h := r * 0.65
-	var door_rect := Rect2(center.x - door_w * 0.5, center.y + body_h - door_h, door_w, door_h)
-	draw_rect(door_rect, Color(0.98, 0.93, 0.82, 1.0), true)

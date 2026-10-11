@@ -1,11 +1,14 @@
 extends RigidBody2D
 
 ## Кот (контейнер логики/коллизии — вся отрисовка в CatVisual.gd, дочернем узле).
-## Тач по коту начинает прицеливание: драг в любую сторону задаёт одновременно
-## направление (куда тянешь — туда и летит, зажато в конусе ±MAX_ANGLE_DEG от
-## вертикали, чтобы бросок всегда шёл вверх к коробке) и силу (длина драга).
-## Стрелка-ребёнок (AimArrow) рисует ровно этот вектор — что видишь, то и
-## получишь при отпускании.
+## Тач в НИЖНЕЙ ЧАСТИ ЭКРАНА (LOWER_ZONE_FRACTION, не обязательно по коту —
+## маленькая мишень неудобна ребёнку) начинает прицеливание: драг в любую
+## сторону задаёт одновременно направление (куда тянешь — туда и летит,
+## зажато в конусе ±MAX_ANGLE_DEG от вертикали, чтобы бросок всегда шёл
+## вверх к коробке) и силу (длина драга). Стрелка-ребёнок (AimArrow) рисует
+## ровно этот вектор — что видишь, то и получишь при отпускании.
+## JoystickHint (не ребёнок, HUD-узел, назначается извне) — чисто визуальная
+## подсказка "тяни здесь", прячется на время заряда.
 ##
 ## Полёт — НЕ гравитационная дуга RigidBody2D, а прямая линия до точки,
 ## которую даёт текущая сила, со сглаживанием/остановкой (Tween, EASE_OUT).
@@ -22,13 +25,13 @@ extends RigidBody2D
 ## быть чётко видно, а не мелькать на кадр.
 ##
 ## Использует Node._input() (а не _unhandled_input), чтобы получать события
-## независимо от GUI-кнопок HUD, пока не окажется рядом с котом (TOUCH_RADIUS).
+## независимо от GUI-кнопок HUD.
 
 signal missed
 signal launched
 signal reset_done
 
-const TOUCH_RADIUS := 80.0
+const LOWER_ZONE_FRACTION := 0.55
 const MAX_ANGLE_DEG := 60.0
 const MIN_DRAG_FOR_AIM := 6.0
 const MAX_DRAG_FRACTION := 0.30
@@ -51,6 +54,7 @@ var power: float = 0.0
 var aim_direction: Vector2 = Vector2.UP
 
 var power_meter = null
+var joystick_hint = null
 var _flight_tween: Tween = null
 var _visual_tween: Tween = null
 
@@ -90,7 +94,8 @@ func _input(event: InputEvent) -> void:
 func _try_start_charge(index: int, screen_pos: Vector2) -> void:
 	if state != State.IDLE:
 		return
-	if global_position.distance_to(screen_pos) > TOUCH_RADIUS:
+	var vp := get_viewport_rect().size
+	if screen_pos.y < vp.y * LOWER_ZONE_FRACTION:
 		return
 	state = State.CHARGING
 	touch_index = index
@@ -99,6 +104,8 @@ func _try_start_charge(index: int, screen_pos: Vector2) -> void:
 	aim_direction = Vector2.UP
 	if power_meter:
 		power_meter.show_meter()
+	if joystick_hint:
+		joystick_hint.hide()
 	get_viewport().set_input_as_handled()
 
 
@@ -140,6 +147,8 @@ func _launch() -> void:
 	if distance < MIN_LAUNCH_DISTANCE:
 		state = State.IDLE
 		power = 0.0
+		if joystick_hint:
+			joystick_hint.show()
 		return
 	state = State.FLYING
 	var target := start_position + aim_direction * distance
@@ -217,4 +226,6 @@ func reset_to_start() -> void:
 	touch_index = -1
 	power = 0.0
 	aim_direction = Vector2.UP
+	if joystick_hint:
+		joystick_hint.show()
 	reset_done.emit()

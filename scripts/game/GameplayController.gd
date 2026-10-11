@@ -1,8 +1,8 @@
 extends Node2D
 
 ## Дирижёр сцены уровня: расставляет кота и коробку (случайная позиция по
-## сетке экрана, сид = номер уровня — воспроизводимо при реплее), обновляет
-## HUD, обрабатывает победу и кнопку-иконку "Домой".
+## сетке экрана, сид = номер уровня — воспроизводимо при реплее), выставляет
+## тему фона, обновляет HUD, обрабатывает победу и кнопку-иконку "Домой".
 
 const GRID_COLS := 3
 const GRID_ROWS := 3
@@ -12,12 +12,15 @@ const GRID_Y_MIN := 0.13
 const GRID_Y_MAX := 0.40
 const SCORE_REVEAL_PAUSE := 0.5
 
+@onready var background: Control = $Background
 @onready var ball: RigidBody2D = $Ball
 @onready var ring_sensor: Area2D = $RingSensor
 
-@onready var score_stars_label: Label = $HUD/Root/TopRight/ScoreStarsLabel
+@onready var score_label: Label = $HUD/Root/TopRight/ScoreLabel
+@onready var stars_label: Label = $HUD/Root/TopRight/StarsLabel
 @onready var home_button: Button = $HUD/Root/TopLeft/HomeButton
 @onready var power_meter: Control = $HUD/Root/PowerMeterRoot
+@onready var joystick_hint: Control = $HUD/Root/JoystickHint
 
 @onready var complete_panel: Control = $HUD/Root/LevelCompletePanel
 @onready var complete_text: Label = $HUD/Root/LevelCompletePanel/Box/ResultLabel
@@ -39,7 +42,10 @@ func _ready() -> void:
 
 	var vp := get_viewport_rect().size
 
+	background.set_theme_for_level(level_id)
+
 	ball.power_meter = power_meter
+	ball.joystick_hint = joystick_hint
 	var skin: Dictionary = ShopCatalog.get_skin(GameState.selected_skin)
 	ball.setup(Vector2(float(config["ball_x"]) * vp.x, vp.y * 0.82), skin["color"])
 
@@ -74,7 +80,8 @@ func _random_ring_position(seed_level_id: int, vp: Vector2) -> Vector2:
 
 
 func _update_score_labels() -> void:
-	score_stars_label.text = "Score: %d   ★ %d" % [GameState.score, GameState.stars]
+	score_label.text = "Score: %d" % GameState.score
+	stars_label.text = "★ %d" % GameState.stars
 
 
 func _on_scored() -> void:

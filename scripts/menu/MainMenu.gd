@@ -1,6 +1,7 @@
 extends Control
 
-@onready var stats_label: Label = $StatsLabel
+@onready var score_label: Label = $Stats/ScoreLabel
+@onready var stars_label: Label = $Stats/StarsLabel
 @onready var play_button: Button = $Menu/PlayButton
 @onready var shop_button: Button = $Menu/ShopButton
 @onready var leaderboard_button: Button = $Menu/LeaderboardButton
@@ -8,7 +9,8 @@ extends Control
 
 
 func _ready() -> void:
-	stats_label.text = "Score: %d   ★ %d" % [GameState.score, GameState.stars]
+	score_label.text = "Score: %d" % GameState.score
+	stars_label.text = "★ %d" % GameState.stars
 	play_button.pressed.connect(_on_play_pressed)
 	shop_button.pressed.connect(_on_shop_pressed)
 	leaderboard_button.pressed.connect(_on_leaderboard_pressed)
