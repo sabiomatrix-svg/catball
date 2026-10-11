@@ -20,20 +20,25 @@ func _ready() -> void:
 
 
 func _on_play_pressed() -> void:
+	AudioManager.play_tap()
 	get_tree().change_scene_to_file("res://scenes/Game.tscn")
 
 
 func _on_cats_pressed() -> void:
+	AudioManager.play_tap()
 	get_tree().change_scene_to_file("res://scenes/Collection.tscn")
 
 
 func _on_shop_pressed() -> void:
+	AudioManager.play_tap()
 	get_tree().change_scene_to_file("res://scenes/Shop.tscn")
 
 
 func _on_leaderboard_pressed() -> void:
+	AudioManager.play_tap()
 	get_tree().change_scene_to_file("res://scenes/Leaderboard.tscn")
 
 
 func _on_settings_pressed() -> void:
+	AudioManager.play_tap()
 	get_tree().change_scene_to_file("res://scenes/Settings.tscn")

@@ -75,14 +75,17 @@ func _configure_action_button(button: Button, skin: Dictionary) -> void:
 
 
 func _on_select_pressed(skin_id: String) -> void:
+	AudioManager.play_tap()
 	ShopCatalog.select(skin_id)
 	_build_rows()
 
 
 func _on_purchase_pressed(skin_id: String) -> void:
+	AudioManager.play_tap()
 	if ShopCatalog.purchase(skin_id):
 		_build_rows()
 
 
 func _on_back_pressed() -> void:
+	AudioManager.play_tap()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

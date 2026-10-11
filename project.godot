@@ -23,6 +23,7 @@ SettingsManager="*res://scripts/autoload/SettingsManager.gd"
 Leaderboard="*res://scripts/autoload/Leaderboard.gd"
 ShopCatalog="*res://scripts/autoload/ShopCatalog.gd"
 LevelData="*res://scripts/autoload/LevelData.gd"
+AudioManager="*res://scripts/autoload/AudioManager.gd"
 
 [display]
 

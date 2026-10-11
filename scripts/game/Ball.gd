@@ -30,6 +30,7 @@ extends Node2D
 
 signal missed
 signal launched
+signal landed
 signal reset_done
 
 const LOWER_ZONE_FRACTION := 0.55
@@ -168,6 +169,7 @@ func _launch() -> void:
 	_flight_tween.finished.connect(_on_flight_finished)
 
 	_play_jump_animation(duration)
+	AudioManager.play_sfx("jump")
 	launched.emit()
 
 
@@ -209,6 +211,16 @@ func _on_flight_finished() -> void:
 	if state != State.FLYING:
 		return
 	state = State.LANDED
+	# Решение "гол или мимо" принимает GameplayController по ТОЧКЕ
+	# ОСТАНОВКИ — поэтому просто сообщаем, что долетели.
+	landed.emit()
+
+
+## Промах: подержать кота на месте посадки (чтобы было видно, куда попал)
+## и вернуть к старту.
+func return_to_start_after_pause() -> void:
+	if state != State.LANDED:
+		return
 	await get_tree().create_timer(LANDING_PAUSE_SECONDS).timeout
 	if state != State.LANDED:
 		return

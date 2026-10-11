@@ -48,7 +48,7 @@ func _make_card(skin: Dictionary) -> Control:
 
 	var card := Button.new()
 	card.flat = true
-	card.custom_minimum_size = Vector2(160, 210)
+	card.custom_minimum_size = Vector2(250, 300)
 	card.pressed.connect(_on_card_pressed.bind(skin_id))
 
 	var box := VBoxContainer.new()
@@ -60,7 +60,7 @@ func _make_card(skin: Dictionary) -> Control:
 
 	var avatar: Control = CAT_AVATAR.new()
 	avatar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	avatar.custom_minimum_size = Vector2(150, 126)
+	avatar.custom_minimum_size = Vector2(240, 200)
 	avatar.set_look(skin["color"], String(skin.get("pattern", "solid")))
 	box.add_child(avatar)
 
@@ -69,7 +69,7 @@ func _make_card(skin: Dictionary) -> Control:
 	var shown := ShopCatalog.get_display_name(skin_id)
 	name_label.text = ("✓ " + shown) if is_selected else shown
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_font_size_override("font_size", 28)
 	name_label.add_theme_color_override(
 		"font_color",
 		Color(0.83, 0.69, 0.22) if is_selected else Color(1, 1, 1)
@@ -81,7 +81,7 @@ func _make_card(skin: Dictionary) -> Control:
 	var edit := Button.new()
 	edit.text = "✎ Rename"
 	edit.flat = true
-	edit.add_theme_font_size_override("font_size", 18)
+	edit.add_theme_font_size_override("font_size", 20)
 	edit.add_theme_color_override("font_color", Color(0.75, 0.75, 0.8))
 	edit.pressed.connect(_on_rename_pressed.bind(skin_id))
 	box.add_child(edit)
@@ -90,10 +90,12 @@ func _make_card(skin: Dictionary) -> Control:
 
 
 func _on_card_pressed(skin_id: String) -> void:
+	AudioManager.play_tap()
 	ShopCatalog.select(skin_id)
 
 
 func _on_rename_pressed(skin_id: String) -> void:
+	AudioManager.play_tap()
 	_renaming_id = skin_id
 	rename_title.text = "Rename %s" % ShopCatalog.get_display_name(skin_id)
 	rename_field.text = ShopCatalog.get_display_name(skin_id)
@@ -114,4 +116,5 @@ func _close_rename() -> void:
 
 
 func _on_back_pressed() -> void:
+	AudioManager.play_tap()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

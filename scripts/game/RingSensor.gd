@@ -8,7 +8,7 @@ extends Node2D
 ## по прямой скриптовым Tween'ом, напрямую присваивая global_position. Для
 ## физического сервера такое тело "телепортируется", и Area2D.body_entered
 ## не срабатывал ни разу (подтверждено логами с телефона). Попадание
-## считает GameplayController проверкой расстояния каждый кадр.
+## считает GameplayController по ТОЧКЕ ОСТАНОВКИ кота.
 
 var radius: float = 80.0
 var hit_scale: float = 1.0
@@ -22,9 +22,14 @@ func setup(box_radius: float, box_style: int = 0, zone_scale: float = 1.0) -> vo
 	queue_redraw()
 
 
-## Зона засчитывания: размер коробки, умноженный на сужение от уровня.
+## Зона засчитывания. Теперь гол считается по ТОЧКЕ ОСТАНОВКИ кота, а не
+## по пролёту мимо, поэтому нужна небольшая фора по силе — иначе ребёнку
+## пришлось бы угадывать шкалу с точностью до пары процентов.
+const BASE_FORGIVENESS := 1.3
+
+
 func hit_radius() -> float:
-	return radius * hit_scale
+	return radius * BASE_FORGIVENESS * hit_scale
 
 
 func contains_point(p: Vector2) -> bool:

@@ -62,6 +62,7 @@ func _ready() -> void:
 	level_label.text = "Level %d" % level_id
 	_update_score_labels()
 
+	ball.landed.connect(_on_ball_landed)
 	home_button.pressed.connect(_on_home_pressed)
 	next_button.pressed.connect(_on_next_or_home_pressed)
 
@@ -69,17 +70,21 @@ func _ready() -> void:
 	GameState.stars_changed.connect(func(_s): _update_score_labels())
 
 
-## _process, а не _physics_process: позицию кота двигает Tween, а он
-## обновляет свойство в кадре отрисовки — так мы видим каждую промежуточную
-## точку полёта и не можем "перескочить" коробку между проверками.
-func _process(_delta: float) -> void:
-	if not scoring_armed:
-		return
-	if not ball.is_flying():
-		return
-	if ring_sensor.contains_point(ball.global_position):
+## Гол считается ПО ТОЧКЕ ОСТАНОВКИ, а не по пролёту.
+## Раньше проверка шла каждый кадр во время полёта, и кот засчитывался,
+## если хоть раз оказался рядом с коробкой — а при сильном броске он
+## пролетает коробку насквозь по пути вверх. Из-за этого попадание
+## случалось при любой силе, и шкала фактически ни на что не влияла.
+func _on_ball_landed() -> void:
+	if scoring_armed and ring_sensor.contains_point(ball.global_position):
 		scoring_armed = false
 		_on_scored()
+	else:
+		print("[GameplayController] miss: cat=", ball.global_position,
+			" box=", ring_sensor.global_position,
+			" dist=", ball.global_position.distance_to(ring_sensor.global_position),
+			" hit_radius=", ring_sensor.hit_radius())
+		ball.return_to_start_after_pause()
 
 
 ## Коробка стоит донышком на одной из полок; полка и место вдоль неё
@@ -107,6 +112,7 @@ func _on_scored() -> void:
 		" cat=", ball.global_position, " box=", ring_sensor.global_position,
 		" hit_radius=", ring_sensor.hit_radius())
 	ball.stop_flight_in_place()
+	AudioManager.play_sfx("score")
 	GameState.complete_level(level_id)
 	level_done_text.text = "Level %d complete" % level_id
 	complete_text.text = "+%d point, +%d star" % [
@@ -121,6 +127,7 @@ func _on_scored() -> void:
 
 
 func _on_home_pressed() -> void:
+	AudioManager.play_tap()
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 
@@ -145,6 +152,7 @@ func _play_star_burst() -> void:
 
 
 func _on_next_or_home_pressed() -> void:
+	AudioManager.play_tap()
 	get_tree().paused = false
 	GameState.set_current_level(level_id + 1)
 	get_tree().reload_current_scene()
