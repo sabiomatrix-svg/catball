@@ -22,7 +22,7 @@ offset_right = -16.0
 offset_bottom = 60.0
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 24
-text = "Очки: 0   ★ 0"
+text = "Score: 0   ★ 0"
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 1
@@ -35,7 +35,7 @@ offset_bottom = 250.0
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 48
 theme_override_colors/font_color = Color(0.83, 0.52, 0.2, 1)
-text = "Catball"
+text = "Catbox"
 
 [node name="Menu" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -53,22 +53,22 @@ theme_override_constants/separation = 20
 layout_mode = 2
 custom_minimum_size = Vector2(0, 56)
 theme_override_font_sizes/font_size = 26
-text = "Играть"
+text = "Play"
 
 [node name="ShopButton" type="Button" parent="Menu"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 56)
 theme_override_font_sizes/font_size = 26
-text = "Магазин"
+text = "Shop"
 
 [node name="LeaderboardButton" type="Button" parent="Menu"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 56)
 theme_override_font_sizes/font_size = 26
-text = "Лидерборд"
+text = "Leaderboard"
 
 [node name="SettingsButton" type="Button" parent="Menu"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 56)
 theme_override_font_sizes/font_size = 26
-text = "Настройки"
+text = "Settings"

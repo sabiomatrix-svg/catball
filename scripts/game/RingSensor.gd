@@ -1,9 +1,11 @@
 extends Area2D
 
-## Цель — картонная коробка (не кольцо). Засчитывает гол по любому
-## пересечению с мячом, пока "заряжена": мяч больше не летит по гравитационной
-## дуге (см. Ball.gd), а едет по прямой до точки остановки, так что проверка
-## "обязательно падает вниз" больше не имеет смысла — просто попадание.
+## Цель — картонная коробка, вид сверху под ~45° (классический
+## изометрический "ромб-проём + две боковые стенки"). Засчитывает гол по
+## любому пересечению с котом, пока "заряжена": кот больше не летит по
+## гравитационной дуге (см. Ball.gd), а едет по прямой до точки остановки,
+## так что проверка "обязательно падает вниз" больше не имеет смысла —
+## просто попадание.
 
 signal scored
 
@@ -20,7 +22,7 @@ func _ready() -> void:
 func setup(box_radius: float) -> void:
 	radius = box_radius
 	var shape := collision_shape.shape as CircleShape2D
-	shape.radius = radius * 0.65
+	shape.radius = radius * 0.6
 	queue_redraw()
 
 
@@ -38,27 +40,39 @@ func _on_body_entered(body: Node) -> void:
 
 
 func _draw() -> void:
-	var w := radius * 1.8
-	var h := radius * 1.3
-	var box_color := Color8(181, 134, 80)
-	var box_dark := Color8(140, 99, 56)
-	var inside_color := Color8(90, 62, 38)
+	var hw := radius * 0.95
+	var hd := radius * 0.5
+	var wall_h := radius * 0.7
 
-	var body := Rect2(-w * 0.5, -h * 0.25, w, h * 0.75)
-	draw_rect(body, box_color, true)
-	draw_rect(body, box_dark, false, 3.0)
+	var top := Vector2(0, -hd)
+	var right := Vector2(hw, 0)
+	var bottom := Vector2(0, hd)
+	var left := Vector2(-hw, 0)
 
+	var box_dark := Color8(150, 108, 62)
+	var box_light := Color8(205, 160, 104)
+	var inside_color := Color8(74, 50, 30)
+	var edge_color := Color8(112, 78, 44)
+	var flap_color := Color8(190, 146, 92)
+
+	# открытые клапаны позади проёма (лёгкий намёк на развёрнутую коробку)
 	draw_colored_polygon(PackedVector2Array([
-		Vector2(-w * 0.5, -h * 0.25),
-		Vector2(-w * 0.75, -h * 0.55),
-		Vector2(-w * 0.5, -h * 0.1),
-	]), box_color)
+		left, top, left + Vector2(-hw * 0.5, -hd * 0.3),
+	]), flap_color)
 	draw_colored_polygon(PackedVector2Array([
-		Vector2(w * 0.5, -h * 0.25),
-		Vector2(w * 0.75, -h * 0.55),
-		Vector2(w * 0.5, -h * 0.1),
-	]), box_color)
+		top, right, right + Vector2(hw * 0.5, -hd * 0.3),
+	]), flap_color)
 
-	var inside := Rect2(-w * 0.38, -h * 0.22, w * 0.76, h * 0.22)
-	draw_rect(inside, inside_color, true)
-	draw_line(Vector2(0, -h * 0.25), Vector2(0, h * 0.15), box_dark, 2.0)
+	# левая внешняя стенка (в тени)
+	draw_colored_polygon(PackedVector2Array([
+		left, bottom, bottom + Vector2(0, wall_h), left + Vector2(0, wall_h),
+	]), box_dark)
+
+	# правая внешняя стенка (светлее — свет сверху-справа)
+	draw_colored_polygon(PackedVector2Array([
+		bottom, right, right + Vector2(0, wall_h), bottom + Vector2(0, wall_h),
+	]), box_light)
+
+	# тёмное нутро коробки (верхний проём, ромб)
+	draw_colored_polygon(PackedVector2Array([top, right, bottom, left]), inside_color)
+	draw_polyline(PackedVector2Array([top, right, bottom, left, top]), edge_color, 3.0, true)

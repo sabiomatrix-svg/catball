@@ -60,14 +60,14 @@ func _configure_action_button(button: Button, skin: Dictionary) -> void:
 	var owned := ShopCatalog.is_owned(skin_id)
 	var selected := GameState.selected_skin == skin_id
 	if selected:
-		button.text = "Выбран"
+		button.text = "Selected"
 		button.disabled = true
 	elif owned:
-		button.text = "Выбрать"
+		button.text = "Select"
 		button.disabled = false
 		button.pressed.connect(_on_select_pressed.bind(skin_id))
 	else:
-		button.text = "Купить ★%d" % int(skin["cost"])
+		button.text = "Buy ★%d" % int(skin["cost"])
 		button.disabled = GameState.stars < int(skin["cost"])
 		button.pressed.connect(_on_purchase_pressed.bind(skin_id))
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/GameplayController.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/game/Ball.gd" id="2"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/game/AimArrow.gd" id="4"]
 [ext_resource type="Script" path="res://scripts/game/PowerMeter.gd" id="5"]
 [ext_resource type="Script" path="res://scripts/game/IconGlyph.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/game/CatVisual.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/game/RoomBackground.gd" id="8"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ball"]
 radius = 36.0
@@ -16,10 +18,10 @@ radius = 80.0
 [node name="Game" type="Node2D"]
 script = ExtResource("1")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.56, 0.82, 0.95, 1)
+script = ExtResource("8")
 
 [node name="RingSensor" type="Area2D" parent="."]
 script = ExtResource("3")
@@ -32,6 +34,9 @@ script = ExtResource("2")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ball"]
 shape = SubResource("CircleShape2D_ball")
+
+[node name="CatVisual" type="Node2D" parent="Ball"]
+script = ExtResource("7")
 
 [node name="AimArrow" type="Node2D" parent="Ball"]
 visible = false
@@ -48,7 +53,7 @@ mouse_filter = 2
 layout_mode = 1
 offset_left = 16.0
 offset_top = 16.0
-offset_right = 140.0
+offset_right = 88.0
 offset_bottom = 72.0
 theme_override_constants/separation = 12
 
@@ -63,18 +68,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("6")
 icon = 1
-
-[node name="RestartButton" type="Button" parent="HUD/Root/TopLeft"]
-layout_mode = 2
-custom_minimum_size = Vector2(56, 56)
-flat = true
-
-[node name="RestartIcon" type="Control" parent="HUD/Root/TopLeft/RestartButton"]
-layout_mode = 1
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource("6")
-icon = 0
 
 [node name="TopRight" type="Control" parent="HUD/Root"]
 layout_mode = 1
@@ -92,7 +85,7 @@ anchor_bottom = 1.0
 horizontal_alignment = 2
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 26
-text = "Очки: 0   ★ 0"
+text = "Score: 0   ★ 0"
 
 [node name="PowerMeterRoot" type="Control" parent="HUD/Root"]
 visible = false
@@ -148,19 +141,19 @@ horizontal_alignment = 1
 autowrap_mode = 2
 theme_override_font_sizes/font_size = 30
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-text = "Уровень пройден!"
+text = "Level complete!"
 
 [node name="NextButton" type="Button" parent="HUD/Root/LevelCompletePanel/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = "Следующий уровень"
+text = "Next level"
 
 [node name="ReplayButton" type="Button" parent="HUD/Root/LevelCompletePanel/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = "Начать заново"
+text = "Play again"
 
 [node name="HomeButton" type="Button" parent="HUD/Root/LevelCompletePanel/Box"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = "Домой"
+text = "Home"

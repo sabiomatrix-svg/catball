@@ -8,7 +8,7 @@ extends Control
 
 
 func _ready() -> void:
-	stats_label.text = "Очки: %d   ★ %d" % [GameState.score, GameState.stars]
+	stats_label.text = "Score: %d   ★ %d" % [GameState.score, GameState.stars]
 	play_button.pressed.connect(_on_play_pressed)
 	shop_button.pressed.connect(_on_shop_pressed)
 	leaderboard_button.pressed.connect(_on_leaderboard_pressed)

@@ -19,7 +19,7 @@ func _build_rows() -> void:
 	var entries := Leaderboard.get_top_entries_sync(10)
 	if entries.is_empty():
 		var empty_label := Label.new()
-		empty_label.text = "Пока нет результатов — сыграйте первый уровень!"
+		empty_label.text = "No scores yet — play your first level!"
 		empty_label.add_theme_font_size_override("font_size", 22)
 		empty_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		list.add_child(empty_label)
@@ -39,7 +39,7 @@ func _make_row(rank: int, entry: Dictionary) -> Control:
 	row.add_child(rank_label)
 
 	var score_label := Label.new()
-	score_label.text = "Очки: %d" % int(entry.get("score", 0))
+	score_label.text = "Score: %d" % int(entry.get("score", 0))
 	score_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	score_label.add_theme_font_size_override("font_size", 24)
 	row.add_child(score_label)

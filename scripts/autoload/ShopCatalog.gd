@@ -7,11 +7,11 @@ signal purchased(skin_id: String)
 signal skin_selected(skin_id: String)
 
 var skins: Array[Dictionary] = [
-	{"id": "classic", "name": "Рыжик",       "cost": 0,  "color": Color8(242, 166, 90)},
-	{"id": "ginger",  "name": "Имбирный",    "cost": 3,  "color": Color8(224, 108, 59)},
-	{"id": "smoky",   "name": "Дымчатый",    "cost": 5,  "color": Color8(140, 140, 148)},
-	{"id": "tuxedo",  "name": "Фрак",        "cost": 8,  "color": Color8(43, 43, 43)},
-	{"id": "royal",   "name": "Королевский", "cost": 12, "color": Color8(142, 111, 209)},
+	{"id": "classic", "name": "Tabby",  "cost": 0,  "color": Color8(242, 166, 90)},
+	{"id": "ginger",  "name": "Ginger", "cost": 3,  "color": Color8(224, 108, 59)},
+	{"id": "smoky",   "name": "Smoky",  "cost": 5,  "color": Color8(140, 140, 148)},
+	{"id": "tuxedo",  "name": "Tuxedo", "cost": 8,  "color": Color8(43, 43, 43)},
+	{"id": "royal",   "name": "Royal",  "cost": 12, "color": Color8(142, 111, 209)},
 ]
 
 

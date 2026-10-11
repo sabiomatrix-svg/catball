@@ -29,11 +29,11 @@ jobs:
         run: mkdir -v -p build/android
 
       - name: Export Android debug APK
-        run: godot --headless --verbose --export-debug "Android" build/android/catball.apk
+        run: godot --headless --verbose --export-debug "Android" build/android/catbox.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: catball-debug-apk
-          path: build/android/catball.apk
+          name: catbox-debug-apk
+          path: build/android/catbox.apk
           if-no-files-found: error

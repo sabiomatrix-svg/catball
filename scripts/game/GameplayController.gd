@@ -1,8 +1,8 @@
 extends Node2D
 
-## Дирижёр сцены уровня: расставляет мяч и кольцо (круглая мишень в случайной
-## позиции по сетке экрана, сид = номер уровня — воспроизводимо при реплее),
-## обновляет HUD, обрабатывает победу и кнопки-иконки "Заново"/"Домой".
+## Дирижёр сцены уровня: расставляет кота и коробку (случайная позиция по
+## сетке экрана, сид = номер уровня — воспроизводимо при реплее), обновляет
+## HUD, обрабатывает победу и кнопку-иконку "Домой".
 
 const GRID_COLS := 3
 const GRID_ROWS := 3
@@ -10,12 +10,12 @@ const GRID_X_MIN := 0.20
 const GRID_X_MAX := 0.80
 const GRID_Y_MIN := 0.13
 const GRID_Y_MAX := 0.40
+const SCORE_REVEAL_PAUSE := 0.5
 
 @onready var ball: RigidBody2D = $Ball
 @onready var ring_sensor: Area2D = $RingSensor
 
 @onready var score_stars_label: Label = $HUD/Root/TopRight/ScoreStarsLabel
-@onready var restart_button: Button = $HUD/Root/TopLeft/RestartButton
 @onready var home_button: Button = $HUD/Root/TopLeft/HomeButton
 @onready var power_meter: Control = $HUD/Root/PowerMeterRoot
 
@@ -50,7 +50,6 @@ func _ready() -> void:
 
 	ring_sensor.scored.connect(_on_scored)
 	ball.reset_done.connect(func(): ring_sensor.rearm())
-	restart_button.pressed.connect(_on_restart_pressed)
 	home_button.pressed.connect(_on_home_pressed)
 	next_button.pressed.connect(_on_next_pressed)
 	replay_button.pressed.connect(_on_restart_pressed)
@@ -75,13 +74,15 @@ func _random_ring_position(seed_level_id: int, vp: Vector2) -> Vector2:
 
 
 func _update_score_labels() -> void:
-	score_stars_label.text = "Очки: %d   ★ %d" % [GameState.score, GameState.stars]
+	score_stars_label.text = "Score: %d   ★ %d" % [GameState.score, GameState.stars]
 
 
 func _on_scored() -> void:
+	ball.stop_flight_in_place()
 	GameState.complete_level(level_id)
-	complete_text.text = "Уровень пройден!\n+10 очков, +3 звезды"
+	complete_text.text = "Level complete!\n+10 points, +3 stars"
 	next_button.visible = LevelData.has_level(level_id + 1)
+	await get_tree().create_timer(SCORE_REVEAL_PAUSE).timeout
 	ball.reset_to_start()
 	complete_panel.visible = true
 	get_tree().paused = true
