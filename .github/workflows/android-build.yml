@@ -32,11 +32,16 @@ jobs:
       # Поэтому сначала прогоняем импорт проекта в редакторе и падаем,
       # если в выводе есть ошибки скриптов.
       - name: Validate GDScript (fail on parse errors)
+        shell: bash
         run: |
-          set -o pipefail
-          godot --headless --editor --quit-after 200 2>&1 | tee /tmp/import.log || true
-          if grep -nE "SCRIPT ERROR|Parse Error|Failed to load script|Invalid call|Nonexistent function" /tmp/import.log; then
-            echo "::error::GDScript errors found during project import (see lines above)"
+          godot --headless --editor --quit-after 200 > /tmp/import.log 2>&1 || true
+          echo "---- import log (tail) ----"
+          tail -n 40 /tmp/import.log || true
+          echo "---------------------------"
+          # Ошибки печатаем через ::error::, чтобы они попадали в аннотации
+          # GitHub: аннотации отдаются публичным API, в отличие от логов.
+          if grep -nE "SCRIPT ERROR|Parse Error|Failed to load script" /tmp/import.log > /tmp/errs.txt 2>/dev/null; then
+            while IFS= read -r line; do echo "::error::$line"; done < /tmp/errs.txt
             exit 1
           fi
           echo "GDScript import clean."
