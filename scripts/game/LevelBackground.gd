@@ -7,9 +7,13 @@ extends Control
 const LEVELS_PER_THEME := 10
 const THEME_COUNT := 3
 
-enum Theme { ROOM, FIELD, FOREST }
+## Control уже имеет встроенное свойство "theme" (UI-тема, класс Theme) —
+## свои enum/var называем иначе, чтобы не перекрывать нативный класс
+## (на этом словил "Parse Error: shadows a native class" — скрипт не грузился
+## вообще, GameplayController падал на первой же строке _ready()).
+enum SceneTheme { ROOM, FIELD, FOREST }
 
-var theme: int = Theme.ROOM
+var current_theme: int = SceneTheme.ROOM
 
 
 func _ready() -> void:
@@ -19,9 +23,9 @@ func _ready() -> void:
 
 func set_theme_for_level(level_id: int) -> void:
 	var idx := int(float(level_id - 1) / LEVELS_PER_THEME) % THEME_COUNT
-	if idx == theme:
+	if idx == current_theme:
 		return
-	theme = idx
+	current_theme = idx
 	queue_redraw()
 
 
@@ -29,10 +33,10 @@ func _draw() -> void:
 	var s := size
 	if s.x <= 0 or s.y <= 0:
 		return
-	match theme:
-		Theme.FIELD:
+	match current_theme:
+		SceneTheme.FIELD:
 			_draw_field(s)
-		Theme.FOREST:
+		SceneTheme.FOREST:
 			_draw_forest(s)
 		_:
 			_draw_room(s)
