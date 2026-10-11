@@ -52,20 +52,10 @@ offset_right = 140.0
 offset_bottom = 72.0
 theme_override_constants/separation = 12
 
-[node name="RestartButton" type="Button" parent="HUD/Root/TopLeft"]
-layout_mode = 2
-custom_minimum_size = Vector2(56, 56)
-
-[node name="RestartIcon" type="Control" parent="HUD/Root/TopLeft/RestartButton"]
-layout_mode = 1
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource("6")
-icon = 0
-
 [node name="HomeButton" type="Button" parent="HUD/Root/TopLeft"]
 layout_mode = 2
 custom_minimum_size = Vector2(56, 56)
+flat = true
 
 [node name="HomeIcon" type="Control" parent="HUD/Root/TopLeft/HomeButton"]
 layout_mode = 1
@@ -74,13 +64,25 @@ anchor_bottom = 1.0
 script = ExtResource("6")
 icon = 1
 
+[node name="RestartButton" type="Button" parent="HUD/Root/TopLeft"]
+layout_mode = 2
+custom_minimum_size = Vector2(56, 56)
+flat = true
+
+[node name="RestartIcon" type="Control" parent="HUD/Root/TopLeft/RestartButton"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("6")
+icon = 0
+
 [node name="TopRight" type="Control" parent="HUD/Root"]
 layout_mode = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -280.0
+offset_left = -296.0
 offset_top = 16.0
-offset_right = -16.0
+offset_right = -28.0
 offset_bottom = 60.0
 
 [node name="ScoreStarsLabel" type="Label" parent="HUD/Root/TopRight"]

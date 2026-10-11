@@ -15,8 +15,11 @@ func configure(arrow_max_length: float) -> void:
 
 func show_trajectory(aim_direction: Vector2, power: float) -> void:
 	direction = aim_direction
-	current_length = lerpf(max_length * 0.35, max_length, clampf(power, 0.0, 1.0))
-	visible = power > 0.04
+	# Та же формула (power/0.9), что считает дистанцию броска в Ball.gd —
+	# длина стрелки пропорциональна силе от нуля, без искусственного пола,
+	# чтобы заполнение шкалы и то, что рисует стрелка, совпадали один в один.
+	current_length = (clampf(power, 0.0, 1.0) / 0.9) * max_length
+	visible = power > 0.02
 	queue_redraw()
 
 

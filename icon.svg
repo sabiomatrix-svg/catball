@@ -1,15 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <polygon points="10,36 32,2 50,40" fill="#E8974C"/>
-  <polygon points="118,36 96,2 78,40" fill="#E8974C"/>
-  <polygon points="18,32 32,10 44,38" fill="#F6C79A"/>
-  <polygon points="110,32 96,10 84,38" fill="#F6C79A"/>
-  <circle cx="64" cy="66" r="60" fill="#F2A65A"/>
-  <circle cx="64" cy="66" r="60" fill="none" stroke="#C97A2E" stroke-width="4"/>
-  <circle cx="40" cy="60" r="8" fill="#2B2B2B"/>
-  <circle cx="88" cy="60" r="8" fill="#2B2B2B"/>
-  <path d="M52 82 Q64 92 76 82" fill="none" stroke="#2B2B2B" stroke-width="5" stroke-linecap="round"/>
-  <path d="M22 72 Q8 70 -2 76" fill="none" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
-  <path d="M22 80 Q8 81 -2 86" fill="none" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
-  <path d="M106 72 Q120 70 130 76" fill="none" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
-  <path d="M106 80 Q120 81 130 86" fill="none" stroke="#2B2B2B" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="8,40 30,2 48,42" fill="#E8974C"/>
+  <polygon points="120,40 98,2 80,42" fill="#E8974C"/>
+  <polygon points="16,35 30,10 42,38" fill="#F7C9A0"/>
+  <polygon points="112,35 98,10 86,38" fill="#F7C9A0"/>
+  <circle cx="64" cy="66" r="56" fill="#F2A65A"/>
+  <circle cx="64" cy="66" r="56" fill="none" stroke="#C97A2E" stroke-width="4"/>
+  <polygon points="33,44 48,20 58,46" fill="#D98D47" opacity="0.55"/>
+  <polygon points="95,44 80,20 70,46" fill="#D98D47" opacity="0.55"/>
+  <ellipse cx="41" cy="60" rx="9" ry="10" fill="#2B2B2B"/>
+  <ellipse cx="87" cy="60" rx="9" ry="10" fill="#2B2B2B"/>
+  <circle cx="38" cy="56" r="2.6" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="90" cy="56" r="2.6" fill="#FFFFFF" opacity="0.9"/>
+  <polygon points="58,80 70,80 64,90" fill="#C76F6F"/>
+  <path d="M64 90 Q64 96 54 100" fill="none" stroke="#2B2B2B" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M64 90 Q64 96 74 100" fill="none" stroke="#2B2B2B" stroke-width="3.5" stroke-linecap="round"/>
+  <g stroke="#4A3B28" stroke-width="2" stroke-linecap="round" opacity="0.7">
+    <line x1="30" y1="78" x2="2" y2="72"/>
+    <line x1="30" y1="86" x2="2" y2="88"/>
+    <line x1="30" y1="94" x2="4" y2="102"/>
+    <line x1="98" y1="78" x2="126" y2="72"/>
+    <line x1="98" y1="86" x2="126" y2="88"/>
+    <line x1="98" y1="94" x2="124" y2="102"/>
+  </g>
 </svg>
