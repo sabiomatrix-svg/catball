@@ -1,9 +1,8 @@
 extends Node
 
-## Фиксированная награда за уровень — так сформулировано в задаче:
-## 10 очков + 3 звезды за каждый пройденный уровень, без оценки мастерства броска.
-const POINTS_PER_LEVEL := 10
-const STARS_PER_LEVEL := 3
+## Фиксированная награда за уровень: 1 очко + 1 звезда.
+const POINTS_PER_LEVEL := 1
+const STARS_PER_LEVEL := 1
 
 signal score_changed(new_score: int)
 signal stars_changed(new_stars: int)

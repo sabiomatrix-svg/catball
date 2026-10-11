@@ -19,6 +19,7 @@ const SCORE_REVEAL_PAUSE := 0.5
 
 @onready var score_label: Label = $HUD/Root/TopRight/ScoreLabel
 @onready var stars_label: Label = $HUD/Root/TopRight/StarsLabel
+@onready var level_label: Label = $HUD/Root/LevelLabel
 @onready var home_button: Button = $HUD/Root/TopLeft/HomeButton
 @onready var power_meter: Control = $HUD/Root/PowerMeterRoot
 @onready var joystick_hint: Control = $HUD/Root/JoystickHint
@@ -26,6 +27,7 @@ const SCORE_REVEAL_PAUSE := 0.5
 @onready var complete_panel: Control = $HUD/Root/LevelCompletePanel
 @onready var complete_text: Label = $HUD/Root/LevelCompletePanel/Box/ResultLabel
 @onready var next_button: Button = $HUD/Root/LevelCompletePanel/NextButton
+@onready var star_burst: Label = $HUD/Root/LevelCompletePanel/StarBurst
 
 var level_id: int = 1
 var scoring_armed: bool = true
@@ -53,6 +55,7 @@ func _ready() -> void:
 	ring_sensor.setup(box_radius)
 	ring_sensor.position = _box_position_on_shelf(level_id, vp, box_radius)
 
+	level_label.text = "Level %d" % level_id
 	_update_score_labels()
 
 	home_button.pressed.connect(_on_home_pressed)
@@ -100,19 +103,41 @@ func _on_scored() -> void:
 		" hit_radius=", ring_sensor.hit_radius())
 	ball.stop_flight_in_place()
 	GameState.complete_level(level_id)
-	complete_text.text = "Level complete!\n+10 points, +3 stars"
+	complete_text.text = "Level complete!\n+%d point, +%d star" % [
+		GameState.POINTS_PER_LEVEL, GameState.STARS_PER_LEVEL
+	]
 	# Кнопка одна: если следующий уровень есть — ведёт туда, если уровни
 	# кончились — становится выходом в меню (чтобы попап не запирал игру).
 	next_button.text = "Next level" if LevelData.has_level(level_id + 1) else "Home"
 	await get_tree().create_timer(SCORE_REVEAL_PAUSE).timeout
 	ball.reset_to_start()
 	complete_panel.visible = true
+	_play_star_burst()
 	get_tree().paused = true
 
 
 func _on_home_pressed() -> void:
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+
+
+## Звезда выскакивает в центре экрана: подпрыгивает по размеру и гаснет
+## до спокойного состояния. Попап идёт с process_mode = Always, поэтому
+## анимация играет даже при get_tree().paused.
+func _play_star_burst() -> void:
+	star_burst.pivot_offset = star_burst.size * 0.5
+	star_burst.scale = Vector2(0.2, 0.2)
+	star_burst.rotation = -0.5
+	star_burst.modulate = Color(1, 1, 1, 0)
+	var tw := star_burst.create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(star_burst, "scale", Vector2(1.25, 1.25), 0.32) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(star_burst, "rotation", 0.0, 0.32) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(star_burst, "modulate", Color(1, 1, 1, 1), 0.18)
+	tw.chain().tween_property(star_burst, "scale", Vector2(1.0, 1.0), 0.18) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 func _on_next_or_home_pressed() -> void:

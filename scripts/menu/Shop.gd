@@ -3,6 +3,8 @@ extends Control
 ## Грид скинов строится кодом из ShopCatalog.skins, а не руками в .tscn —
 ## одна строка на скин, список легко расширять добавлением записи в каталог.
 
+const CAT_AVATAR = preload("res://scripts/menu/CatAvatar.gd")
+
 @onready var back_button: Button = $TopBar/BackButton
 @onready var stars_label: Label = $TopBar/StarsLabel
 @onready var list: VBoxContainer = $Scroll/List
@@ -35,10 +37,10 @@ func _make_row(skin: Dictionary) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 
-	var swatch := ColorRect.new()
-	swatch.custom_minimum_size = Vector2(56, 56)
-	swatch.color = skin["color"]
-	row.add_child(swatch)
+	var avatar: Control = CAT_AVATAR.new()
+	avatar.custom_minimum_size = Vector2(68, 68)
+	avatar.set_fur(skin["color"])
+	row.add_child(avatar)
 
 	var name_label := Label.new()
 	name_label.text = String(skin["name"])
