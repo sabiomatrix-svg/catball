@@ -55,9 +55,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -140.0
-offset_top = -120.0
+offset_top = -170.0
 offset_right = 140.0
-offset_bottom = 160.0
+offset_bottom = 210.0
 theme_override_constants/separation = 20
 
 [node name="PlayButton" type="Button" parent="Menu"]
@@ -65,6 +65,12 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 56)
 theme_override_font_sizes/font_size = 26
 text = "Play"
+
+[node name="CatsButton" type="Button" parent="Menu"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 56)
+theme_override_font_sizes/font_size = 26
+text = "My cats"
 
 [node name="ShopButton" type="Button" parent="Menu"]
 layout_mode = 2
