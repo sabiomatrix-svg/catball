@@ -1,0 +1,14 @@
+{
+  "levels": [
+    { "id": 1,  "ring_x": 0.50, "ring_y": 0.18, "ring_w": 0.24, "ball_x": 0.50 },
+    { "id": 2,  "ring_x": 0.34, "ring_y": 0.20, "ring_w": 0.22, "ball_x": 0.60 },
+    { "id": 3,  "ring_x": 0.66, "ring_y": 0.21, "ring_w": 0.21, "ball_x": 0.40 },
+    { "id": 4,  "ring_x": 0.30, "ring_y": 0.24, "ring_w": 0.20, "ball_x": 0.50 },
+    { "id": 5,  "ring_x": 0.70, "ring_y": 0.22, "ring_w": 0.19, "ball_x": 0.55 },
+    { "id": 6,  "ring_x": 0.42, "ring_y": 0.27, "ring_w": 0.18, "ball_x": 0.65 },
+    { "id": 7,  "ring_x": 0.60, "ring_y": 0.25, "ring_w": 0.17, "ball_x": 0.35 },
+    { "id": 8,  "ring_x": 0.25, "ring_y": 0.30, "ring_w": 0.16, "ball_x": 0.55 },
+    { "id": 9,  "ring_x": 0.75, "ring_y": 0.28, "ring_w": 0.14, "ball_x": 0.45 },
+    { "id": 10, "ring_x": 0.50, "ring_y": 0.33, "ring_w": 0.13, "ball_x": 0.50 }
+  ]
+}

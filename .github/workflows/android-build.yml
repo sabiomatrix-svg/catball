@@ -1,0 +1,29 @@
+name: Android Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  export-android:
+    name: Export debug APK
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Make export dir
+        run: mkdir -v -p build/android
+
+      - name: Export Android debug APK
+        run: godot --headless --verbose --export-debug "Android" build/android/catball.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: catball-debug-apk
+          path: build/android/catball.apk
+          if-no-files-found: error
