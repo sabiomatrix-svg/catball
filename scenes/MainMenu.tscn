@@ -18,9 +18,9 @@ layout_mode = 1
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -120.0
-offset_top = 24.0
+offset_top = 54.0
 offset_right = 120.0
-offset_bottom = 60.0
+offset_bottom = 90.0
 alignment = 1
 theme_override_constants/separation = 10
 

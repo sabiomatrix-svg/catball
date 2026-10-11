@@ -38,8 +38,8 @@ func _make_row(skin: Dictionary) -> Control:
 	row.add_theme_constant_override("separation", 16)
 
 	var avatar: Control = CAT_AVATAR.new()
-	avatar.custom_minimum_size = Vector2(68, 68)
-	avatar.set_fur(skin["color"])
+	avatar.custom_minimum_size = Vector2(76, 86)
+	avatar.set_look(skin["color"], String(skin.get("pattern", "solid")))
 	row.add_child(avatar)
 
 	var name_label := Label.new()

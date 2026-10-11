@@ -17,13 +17,14 @@ color = Color(0.149, 0.133, 0.173, 1)
 layout_mode = 1
 anchor_right = 1.0
 offset_left = 16.0
-offset_top = 20.0
+offset_top = 54.0
 offset_right = -16.0
-offset_bottom = 68.0
+offset_bottom = 102.0
 theme_override_constants/separation = 16
 
 [node name="BackButton" type="Button" parent="TopBar"]
 layout_mode = 2
+flat = true
 theme_override_font_sizes/font_size = 24
 text = "< Back"
 
@@ -46,7 +47,7 @@ layout_mode = 1
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 16.0
-offset_top = 88.0
+offset_top = 122.0
 offset_right = -16.0
 offset_bottom = -24.0
 

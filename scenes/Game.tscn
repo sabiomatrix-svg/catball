@@ -50,26 +50,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="TopLeft" type="HBoxContainer" parent="HUD/Root"]
-layout_mode = 1
-offset_left = 28.0
-offset_top = 48.0
-offset_right = 100.0
-offset_bottom = 104.0
-theme_override_constants/separation = 12
-
-[node name="HomeButton" type="Button" parent="HUD/Root/TopLeft"]
-layout_mode = 2
-custom_minimum_size = Vector2(56, 56)
-flat = true
-
-[node name="HomeIcon" type="Control" parent="HUD/Root/TopLeft/HomeButton"]
-layout_mode = 1
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource("6")
-icon = 1
-
 [node name="LevelLabel" type="Label" parent="HUD/Root"]
 layout_mode = 1
 anchor_left = 0.5
@@ -154,22 +134,30 @@ color = Color(0, 0, 0, 0.55)
 [node name="Box" type="VBoxContainer" parent="HUD/Root/LevelCompletePanel"]
 layout_mode = 1
 anchor_left = 0.5
-anchor_top = 0.42
+anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.42
-offset_left = -200.0
-offset_top = -70.0
-offset_right = 200.0
-offset_bottom = 70.0
-theme_override_constants/separation = 10
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = 20.0
+offset_right = 230.0
+offset_bottom = 170.0
+theme_override_constants/separation = 12
+
+[node name="LevelDoneLabel" type="Label" parent="HUD/Root/LevelCompletePanel/Box"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 40
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "Level 1 complete"
 
 [node name="ResultLabel" type="Label" parent="HUD/Root/LevelCompletePanel/Box"]
 layout_mode = 2
 horizontal_alignment = 1
 autowrap_mode = 2
-theme_override_font_sizes/font_size = 34
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-text = "Level complete!"
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+text = "+1 point, +1 star"
 
 [node name="NextButton" type="Button" parent="HUD/Root/LevelCompletePanel"]
 layout_mode = 1
@@ -196,12 +184,33 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -140.0
-offset_top = -260.0
-offset_right = 140.0
-offset_bottom = -20.0
+offset_left = -150.0
+offset_top = -250.0
+offset_right = 150.0
+offset_bottom = -10.0
 horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 190
 theme_override_colors/font_color = Color(1, 0.84, 0.25, 1)
 text = "★"
+
+[node name="TopLeft" type="HBoxContainer" parent="HUD/Root"]
+process_mode = 3
+layout_mode = 1
+offset_left = 28.0
+offset_top = 48.0
+offset_right = 100.0
+offset_bottom = 104.0
+theme_override_constants/separation = 12
+
+[node name="HomeButton" type="Button" parent="HUD/Root/TopLeft"]
+layout_mode = 2
+custom_minimum_size = Vector2(56, 56)
+flat = true
+
+[node name="HomeIcon" type="Control" parent="HUD/Root/TopLeft/HomeButton"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("6")
+icon = 1

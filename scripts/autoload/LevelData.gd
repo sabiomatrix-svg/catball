@@ -2,8 +2,17 @@ extends Node
 
 ## Данные уровней — обычный JSON, не Resource: его можно редактировать и
 ## проверять глазами без открытого редактора Godot.
+##
+## Уровни БЕСКОНЕЧНЫЕ. В файле лежат первые AUTHORED штук (их приятно
+## подкручивать руками), а дальше параметры считаются формулой: коробка
+## уменьшается до MIN_RING_W и там остаётся, стартовая позиция кота
+## циклически смещается. has_level() поэтому всегда true — игра никогда
+## не упирается в "уровни кончились".
 
 const LEVELS_PATH := "res://data/levels.json"
+const MIN_RING_W := 0.10
+const RING_SHRINK_PER_LEVEL := 0.003
+const BALL_X_CYCLE := [0.5, 0.6, 0.4, 0.55, 0.45, 0.65, 0.35]
 
 var levels: Array = []
 
@@ -26,16 +35,28 @@ func _load_levels() -> void:
 		push_error("LevelData: не удалось распарсить %s" % LEVELS_PATH)
 
 
-func get_level_count() -> int:
+func authored_count() -> int:
 	return levels.size()
 
 
 func get_level(level_id: int) -> Dictionary:
+	if level_id < 1:
+		return {}
 	for level in levels:
 		if int(level["id"]) == level_id:
 			return level
-	return {}
+	return _generate_level(level_id)
+
+
+## Уровни за пределами файла: коробка продолжает уменьшаться до пола,
+## стартовая точка кота идёт по циклу — комбинация с разными полками и
+## случайной позицией коробки даёт достаточно разнообразия.
+func _generate_level(level_id: int) -> Dictionary:
+	var base := 0.26 - RING_SHRINK_PER_LEVEL * float(level_id - 1)
+	var ring_w := maxf(MIN_RING_W, base)
+	var ball_x: float = BALL_X_CYCLE[(level_id - 1) % BALL_X_CYCLE.size()]
+	return {"id": level_id, "ring_w": ring_w, "ball_x": ball_x}
 
 
 func has_level(level_id: int) -> bool:
-	return level_id >= 1 and level_id <= levels.size()
+	return level_id >= 1

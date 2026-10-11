@@ -25,6 +25,7 @@ const SCORE_REVEAL_PAUSE := 0.5
 @onready var joystick_hint: Control = $HUD/Root/JoystickHint
 
 @onready var complete_panel: Control = $HUD/Root/LevelCompletePanel
+@onready var level_done_text: Label = $HUD/Root/LevelCompletePanel/Box/LevelDoneLabel
 @onready var complete_text: Label = $HUD/Root/LevelCompletePanel/Box/ResultLabel
 @onready var next_button: Button = $HUD/Root/LevelCompletePanel/NextButton
 @onready var star_burst: Label = $HUD/Root/LevelCompletePanel/StarBurst
@@ -49,7 +50,8 @@ func _ready() -> void:
 	ball.power_meter = power_meter
 	ball.joystick_hint = joystick_hint
 	var skin: Dictionary = ShopCatalog.get_skin(GameState.selected_skin)
-	ball.setup(Vector2(float(config["ball_x"]) * vp.x, vp.y * 0.86), skin["color"])
+	ball.setup(Vector2(float(config["ball_x"]) * vp.x, vp.y * 0.86),
+		skin["color"], String(skin.get("pattern", "solid")))
 
 	var box_radius := float(config["ring_w"]) * vp.x * 0.5
 	ring_sensor.setup(box_radius)
@@ -103,12 +105,11 @@ func _on_scored() -> void:
 		" hit_radius=", ring_sensor.hit_radius())
 	ball.stop_flight_in_place()
 	GameState.complete_level(level_id)
-	complete_text.text = "Level complete!\n+%d point, +%d star" % [
+	level_done_text.text = "Level %d complete" % level_id
+	complete_text.text = "+%d point, +%d star" % [
 		GameState.POINTS_PER_LEVEL, GameState.STARS_PER_LEVEL
 	]
-	# Кнопка одна: если следующий уровень есть — ведёт туда, если уровни
-	# кончились — становится выходом в меню (чтобы попап не запирал игру).
-	next_button.text = "Next level" if LevelData.has_level(level_id + 1) else "Home"
+	next_button.text = "Next level"
 	await get_tree().create_timer(SCORE_REVEAL_PAUSE).timeout
 	ball.reset_to_start()
 	complete_panel.visible = true
@@ -142,8 +143,5 @@ func _play_star_burst() -> void:
 
 func _on_next_or_home_pressed() -> void:
 	get_tree().paused = false
-	if LevelData.has_level(level_id + 1):
-		GameState.set_current_level(level_id + 1)
-		get_tree().reload_current_scene()
-	else:
-		get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+	GameState.set_current_level(level_id + 1)
+	get_tree().reload_current_scene()

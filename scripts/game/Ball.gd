@@ -67,10 +67,10 @@ func is_flying() -> bool:
 	return state == State.FLYING
 
 
-func setup(start_pos: Vector2, color: Color) -> void:
+func setup(start_pos: Vector2, color: Color, pattern: String = "solid") -> void:
 	start_position = start_pos
 	global_position = start_pos
-	cat_visual.set_color(color)
+	cat_visual.set_look(color, pattern)
 	aim_arrow.configure(get_viewport_rect().size.y * MAX_DRAG_FRACTION)
 
 
