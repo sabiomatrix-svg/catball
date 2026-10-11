@@ -39,9 +39,9 @@ text = "My cats"
 layout_mode = 1
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 16.0
+offset_left = 98.0
 offset_top = 122.0
-offset_right = -16.0
+offset_right = -98.0
 offset_bottom = -24.0
 
 [node name="Grid" type="GridContainer" parent="Scroll"]
@@ -49,7 +49,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 columns = 2
 theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 12
+theme_override_constants/v_separation = 16
 
 [node name="RenameDialog" type="Control" parent="."]
 visible = false

@@ -91,9 +91,9 @@ text = "★ 0"
 [node name="PowerMeterRoot" type="Control" parent="HUD/Root"]
 visible = false
 layout_mode = 1
-anchor_left = 0.9
+anchor_left = 0.04
 anchor_top = 0.25
-anchor_right = 0.98
+anchor_right = 0.12
 anchor_bottom = 0.85
 script = ExtResource("5")
 
@@ -109,6 +109,18 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.93, 0.68, 0.17, 0.95)
+
+[node name="PercentLabel" type="Label" parent="HUD/Root/PowerMeterRoot"]
+layout_mode = 1
+anchor_left = -0.6
+anchor_top = -0.1
+anchor_right = 1.6
+anchor_bottom = -0.01
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(1, 0.84, 0.25, 1)
+text = "0%"
 
 [node name="JoystickHint" type="Control" parent="HUD/Root"]
 layout_mode = 1

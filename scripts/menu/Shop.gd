@@ -7,7 +7,7 @@ const CAT_AVATAR = preload("res://scripts/menu/CatAvatar.gd")
 
 @onready var back_button: Button = $TopBar/BackButton
 @onready var stars_label: Label = $TopBar/StarsLabel
-@onready var list: VBoxContainer = $Scroll/List
+@onready var list: GridContainer = $Scroll/List
 
 
 func _ready() -> void:
@@ -34,27 +34,30 @@ func _build_rows() -> void:
 
 
 func _make_row(skin: Dictionary) -> Control:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 16)
+	# Карточка: кот, имя, кнопка покупки ПОД котом — тот же формат и
+	# размер, что в галерее My cats.
+	var card := VBoxContainer.new()
+	card.custom_minimum_size = Vector2(250, 300)
+	card.add_theme_constant_override("separation", 6)
 
 	var avatar: Control = CAT_AVATAR.new()
-	avatar.custom_minimum_size = Vector2(76, 86)
+	avatar.custom_minimum_size = Vector2(240, 180)
 	avatar.set_look(skin["color"], String(skin.get("pattern", "solid")))
-	row.add_child(avatar)
+	card.add_child(avatar)
 
 	var name_label := Label.new()
 	name_label.text = ShopCatalog.get_display_name(String(skin["id"]))
-	name_label.add_theme_font_size_override("font_size", 24)
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(name_label)
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.add_theme_font_size_override("font_size", 26)
+	card.add_child(name_label)
 
 	var action_button := Button.new()
-	action_button.add_theme_font_size_override("font_size", 22)
-	action_button.custom_minimum_size = Vector2(150, 0)
+	action_button.add_theme_font_size_override("font_size", 24)
+	action_button.custom_minimum_size = Vector2(0, 56)
 	_configure_action_button(action_button, skin)
-	row.add_child(action_button)
+	card.add_child(action_button)
 
-	return row
+	return card
 
 
 func _configure_action_button(button: Button, skin: Dictionary) -> void:

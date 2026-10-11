@@ -71,9 +71,45 @@ def silence(dur):
     return [0.0] * int(RATE * dur)
 
 
-def make_jump():
-    """Прыжок: короткий взлёт тона вверх."""
-    return tone(360, 0.18, amp=0.45, shape="tri", detune=900)
+def make_meow(dur=0.52):
+    """Мяу.
+
+    Аддитивный синтез: основной тон с контуром высоты (вверх и плавно
+    вниз) плюс гармоники, вес которых задают две "форманты" — так
+    получается переход гласной, за счёт которого звук читается как
+    мяу, а не как свист. Фаза интегрируется по шагам, иначе при
+    меняющейся частоте на стыках появляются щелчки.
+    """
+    n = int(RATE * dur)
+    out = []
+    phase = 0.0
+    for i in range(n):
+        t = i / RATE
+        u = t / dur
+
+        # контур высоты: быстрый подъём, затем спад
+        f0 = 600.0 + 190.0 * math.sin(math.pi * min(1.0, u * 1.7))
+        f0 -= 250.0 * max(0.0, (u - 0.45) / 0.55)
+        f0 *= 1.0 + 0.013 * math.sin(2 * math.pi * 5.5 * t)   # лёгкое вибрато
+        phase += 2 * math.pi * f0 / RATE
+
+        # форманты едут вниз: "мя" -> "ау"
+        f1 = 760.0 - 320.0 * u
+        f2 = 1750.0 - 760.0 * u
+
+        v = 0.0
+        for h in range(1, 10):
+            fh = f0 * h
+            w = math.exp(-((fh - f1) / 330.0) ** 2)
+            w += 0.55 * math.exp(-((fh - f2) / 430.0) ** 2)
+            w += 0.22 / h
+            v += w * math.sin(phase * h)
+        v /= 3.2
+
+        attack = min(1.0, t / 0.025)
+        release = min(1.0, (dur - t) / (dur * 0.55))
+        out.append(v * attack * release * 0.5)
+    return out
 
 
 def make_score():
@@ -127,7 +163,7 @@ def make_music():
 
 
 if __name__ == "__main__":
-    write_wav("jump.wav", make_jump())
+    write_wav("meow.wav", make_meow())
     write_wav("score.wav", make_score())
     write_wav("tap.wav", make_tap())
     write_wav("music_loop.wav", make_music())

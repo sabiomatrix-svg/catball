@@ -9,7 +9,7 @@ extends Node
 ## поэтому в списке автозагрузок AudioManager должен идти ПОСЛЕ него.
 
 const SFX_PATHS := {
-	"jump": "res://assets/audio/jump.wav",
+	"jump": "res://assets/audio/meow.wav",
 	"score": "res://assets/audio/score.wav",
 	"tap": "res://assets/audio/tap.wav",
 }
