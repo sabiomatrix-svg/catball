@@ -25,6 +25,22 @@ jobs:
           mv /root/.config/godot ~/.config/godot
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
 
+      # Экспорт НЕ падает на ошибках разбора GDScript — он просто кладёт
+      # битый скрипт в APK, и ломается это уже на телефоне (так уехали
+      # "Theme shadows a native class" и "cannot infer type of shelf_top":
+      # в обоих случаях скрипт не грузился, уровень не расставлялся).
+      # Поэтому сначала прогоняем импорт проекта в редакторе и падаем,
+      # если в выводе есть ошибки скриптов.
+      - name: Validate GDScript (fail on parse errors)
+        run: |
+          set -o pipefail
+          godot --headless --editor --quit-after 200 2>&1 | tee /tmp/import.log || true
+          if grep -nE "SCRIPT ERROR|Parse Error|Failed to load script|Invalid call|Nonexistent function" /tmp/import.log; then
+            echo "::error::GDScript errors found during project import (see lines above)"
+            exit 1
+          fi
+          echo "GDScript import clean."
+
       - name: Make export dir
         run: mkdir -v -p build/android
 

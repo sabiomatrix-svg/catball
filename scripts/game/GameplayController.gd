@@ -13,9 +13,9 @@ extends Node2D
 
 const SCORE_REVEAL_PAUSE := 0.5
 
-@onready var background: Node2D = $Background
-@onready var ball: Node2D = $Ball
-@onready var ring_sensor: Node2D = $RingSensor
+@onready var background = $Background
+@onready var ball = $Ball
+@onready var ring_sensor = $RingSensor
 
 @onready var score_label: Label = $HUD/Root/TopRight/ScoreLabel
 @onready var stars_label: Label = $HUD/Root/TopRight/StarsLabel
@@ -84,11 +84,13 @@ func _process(_delta: float) -> void:
 func _box_position_on_shelf(seed_level_id: int, vp: Vector2, box_radius: float) -> Vector2:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_level_id * 97 + 13
-	var shelf_index := rng.randi_range(0, background.shelf_count() - 1)
-	var shelf_top := background.shelf_y(shelf_index, vp.y)
+	var shelf_count: int = background.shelf_count()
+	var shelf_index := rng.randi_range(0, shelf_count - 1)
+	var shelf_top: float = background.shelf_y(shelf_index, vp.y)
 	var margin := maxf(box_radius * 1.1, vp.x * 0.16)
 	var x := rng.randf_range(margin, vp.x - margin)
-	return Vector2(x, shelf_top - ring_sensor.bottom_offset())
+	var bottom: float = ring_sensor.bottom_offset()
+	return Vector2(x, shelf_top - bottom)
 
 
 func _update_score_labels() -> void:

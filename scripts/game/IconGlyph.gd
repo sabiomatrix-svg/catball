@@ -39,16 +39,25 @@ func _draw_restart(center: Vector2, r: float) -> void:
 
 
 func _draw_home(center: Vector2, r: float) -> void:
-	# Широкая нависающая крыша (как у домика-будки), сплошной силуэт —
-	# без выреза под дверь: больше нет гарантированного цвета фона, под
-	# который можно было резать "окно".
+	# Корпус почти такой же широкий, как крыша: узкое основание под
+	# треугольником читалось как СТРЕЛКА, а не домик. Дверной проём не
+	# закрашиваем вовсе (рисуем корпус двумя стойками и перемычкой) —
+	# сквозь него виден фон, и силуэт однозначно читается домиком.
 	var roof := PackedVector2Array([
-		center + Vector2(-r * 1.3, r * 0.15),
-		center + Vector2(0, -r * 1.25),
-		center + Vector2(r * 1.3, r * 0.15),
+		center + Vector2(-r * 1.35, r * 0.05),
+		center + Vector2(0, -r * 1.2),
+		center + Vector2(r * 1.35, r * 0.05),
 	])
 	draw_colored_polygon(roof, glyph_color)
-	var body_w := r * 1.5
-	var body_h := r * 1.05
-	var body_rect := Rect2(center.x - body_w * 0.5, center.y - r * 0.05, body_w, body_h)
-	draw_rect(body_rect, glyph_color, true)
+
+	var half_w := r * 1.0
+	var top_y := center.y + r * 0.05
+	var bottom_y := center.y + r * 1.15
+	var lintel_y := center.y + r * 0.5
+	var door_half := r * 0.32
+
+	# перемычка над дверью — во всю ширину корпуса
+	draw_rect(Rect2(center.x - half_w, top_y, half_w * 2.0, lintel_y - top_y), glyph_color, true)
+	# левая и правая стойки, между ними — проём двери
+	draw_rect(Rect2(center.x - half_w, lintel_y, half_w - door_half, bottom_y - lintel_y), glyph_color, true)
+	draw_rect(Rect2(center.x + door_half, lintel_y, half_w - door_half, bottom_y - lintel_y), glyph_color, true)
