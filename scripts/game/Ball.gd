@@ -1,7 +1,15 @@
 extends RigidBody2D
 
-## Мяч-кот. Тач по мячу запускает зарядку (замирает AimArrow, появляется
-## PowerMeter), драг вверх набирает силу, отрыв пальца — бросок.
+## Мяч-кот. Тач по мячу начинает прицеливание: драг В ЛЮБУЮ СТОРОНУ задаёт
+## одновременно направление (куда тянешь — туда и полетит, зажато в конусе
+## ±MAX_ANGLE_DEG от вертикали, чтобы бросок всегда шёл вверх к кольцу) и
+## силу (длина драга). Стрелка-ребёнок (AimArrow) рисует ровно этот вектор —
+## что видишь, то и получишь при отпускании.
+##
+## Сила калибруется от РЕАЛЬНОЙ высоты экрана устройства (а не от фиксированных
+## пикселей): апекс дуги — это доля viewport.y, поэтому бросок всегда долетает
+## до колец в верхней части экрана независимо от разрешения телефона.
+##
 ## Использует Node._input() (а не _unhandled_input), чтобы получать события
 ## независимо от GUI-кнопок HUD, пока не окажется рядом с мячом (TOUCH_RADIUS).
 
@@ -10,11 +18,11 @@ signal launched
 signal reset_done
 
 const TOUCH_RADIUS := 80.0
-const MAX_DRAG_PX := 260.0
-const MAX_HORIZONTAL_IMPULSE := 260.0
-const MIN_VERTICAL_IMPULSE := 320.0
-const MAX_VERTICAL_IMPULSE := 620.0
-const MIN_EFFECTIVE_POWER := 0.25
+const MAX_ANGLE_DEG := 60.0
+const MIN_DRAG_FOR_AIM := 6.0
+const MAX_DRAG_FRACTION := 0.30
+const MIN_APEX_FRACTION := 0.50
+const MAX_APEX_FRACTION := 1.25
 const BALL_RADIUS := 36.0
 const OUT_OF_BOUNDS_MARGIN := 160.0
 
@@ -23,12 +31,14 @@ enum State { IDLE, CHARGING, FLYING }
 var state: int = State.IDLE
 var start_position: Vector2 = Vector2.ZERO
 var touch_index: int = -1
-var touch_start_y: float = 0.0
+var touch_start_pos: Vector2 = Vector2.ZERO
 var power: float = 0.0
+var aim_direction: Vector2 = Vector2.UP
 var skin_color: Color = Color8(242, 166, 90)
 
-var aim_arrow: Node2D = null
 var power_meter = null
+
+@onready var aim_arrow := $AimArrow
 
 
 func _ready() -> void:
@@ -41,6 +51,7 @@ func setup(start_pos: Vector2, color: Color) -> void:
 	start_position = start_pos
 	global_position = start_pos
 	skin_color = color
+	aim_arrow.configure(get_viewport_rect().size.y * MAX_DRAG_FRACTION)
 	queue_redraw()
 
 
@@ -68,10 +79,9 @@ func _try_start_charge(index: int, screen_pos: Vector2) -> void:
 		return
 	state = State.CHARGING
 	touch_index = index
-	touch_start_y = screen_pos.y
+	touch_start_pos = screen_pos
 	power = 0.0
-	if aim_arrow:
-		aim_arrow.freeze_arrow()
+	aim_direction = Vector2.UP
 	if power_meter:
 		power_meter.show_meter()
 	get_viewport().set_input_as_handled()
@@ -80,10 +90,7 @@ func _try_start_charge(index: int, screen_pos: Vector2) -> void:
 func _try_drag(index: int, screen_pos: Vector2) -> void:
 	if state != State.CHARGING or index != touch_index:
 		return
-	var delta := touch_start_y - screen_pos.y
-	power = clampf(delta / MAX_DRAG_PX, 0.0, 1.0)
-	if power_meter:
-		power_meter.set_power(power)
+	_update_aim(screen_pos)
 
 
 func _try_release(index: int) -> void:
@@ -92,23 +99,36 @@ func _try_release(index: int) -> void:
 	_launch()
 
 
+func _update_aim(screen_pos: Vector2) -> void:
+	var raw: Vector2 = screen_pos - touch_start_pos
+	var vp := get_viewport_rect().size
+	var max_drag := MAX_DRAG_FRACTION * vp.y
+	power = clampf(raw.length() / max_drag, 0.0, 1.0)
+	if raw.length() > MIN_DRAG_FOR_AIM:
+		var angle := clampf(atan2(raw.x, -raw.y), deg_to_rad(-MAX_ANGLE_DEG), deg_to_rad(MAX_ANGLE_DEG))
+		aim_direction = Vector2(sin(angle), -cos(angle))
+	if power_meter:
+		power_meter.set_power(power)
+	aim_arrow.show_trajectory(aim_direction, power)
+
+
+func _launch_speed(p: float) -> float:
+	var vp := get_viewport_rect().size
+	var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 980.0)
+	var apex := lerpf(MIN_APEX_FRACTION, MAX_APEX_FRACTION, p) * vp.y
+	return sqrt(2.0 * gravity * apex)
+
+
 func _launch() -> void:
 	state = State.FLYING
 	if power_meter:
 		power_meter.hide_meter()
-	var aim_offset := 0.0
-	if aim_arrow:
-		aim_offset = clampf((aim_arrow.global_position.x - global_position.x) / aim_arrow.half_range, -1.0, 1.0)
-		aim_arrow.unfreeze_arrow()
-	var effective_power := maxf(power, MIN_EFFECTIVE_POWER)
+	aim_arrow.hide_trajectory()
+	var speed := _launch_speed(power)
 	freeze = false
 	linear_velocity = Vector2.ZERO
 	angular_velocity = 0.0
-	var impulse := Vector2(
-		aim_offset * MAX_HORIZONTAL_IMPULSE * effective_power,
-		-lerpf(MIN_VERTICAL_IMPULSE, MAX_VERTICAL_IMPULSE, effective_power)
-	)
-	apply_central_impulse(impulse)
+	apply_central_impulse(aim_direction * speed)
 	touch_index = -1
 	launched.emit()
 
@@ -133,6 +153,7 @@ func reset_to_start() -> void:
 	rotation = 0.0
 	touch_index = -1
 	power = 0.0
+	aim_direction = Vector2.UP
 	reset_done.emit()
 
 

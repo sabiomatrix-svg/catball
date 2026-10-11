@@ -1,17 +1,22 @@
 extends Node2D
 
-## Дирижёр сцены уровня: расставляет мяч/кольцо/стрелку по данным уровня,
-## обновляет HUD, обрабатывает победу и кнопки "Начать заново"/"Домой".
+## Дирижёр сцены уровня: расставляет мяч и кольцо (круглая мишень в случайной
+## позиции по сетке экрана, сид = номер уровня — воспроизводимо при реплее),
+## обновляет HUD, обрабатывает победу и кнопки-иконки "Заново"/"Домой".
+
+const GRID_COLS := 3
+const GRID_ROWS := 3
+const GRID_X_MIN := 0.20
+const GRID_X_MAX := 0.80
+const GRID_Y_MIN := 0.13
+const GRID_Y_MAX := 0.40
 
 @onready var ball: RigidBody2D = $Ball
 @onready var ring_sensor: Area2D = $RingSensor
-@onready var aim_arrow: Node2D = $AimArrow
 
-@onready var score_label: Label = $HUD/Root/TopBar/ScoreLabel
-@onready var level_label: Label = $HUD/Root/TopBar/LevelLabel
-@onready var stars_label: Label = $HUD/Root/TopBar/StarsLabel
-@onready var restart_button: Button = $HUD/Root/BottomBar/RestartButton
-@onready var home_button: Button = $HUD/Root/BottomBar/HomeButton
+@onready var score_stars_label: Label = $HUD/Root/TopRight/ScoreStarsLabel
+@onready var restart_button: Button = $HUD/Root/TopLeft/RestartButton
+@onready var home_button: Button = $HUD/Root/TopLeft/HomeButton
 @onready var power_meter: Control = $HUD/Root/PowerMeterRoot
 
 @onready var complete_panel: Control = $HUD/Root/LevelCompletePanel
@@ -34,17 +39,13 @@ func _ready() -> void:
 
 	var vp := get_viewport_rect().size
 
-	ball.aim_arrow = aim_arrow
 	ball.power_meter = power_meter
 	var skin: Dictionary = ShopCatalog.get_skin(GameState.selected_skin)
 	ball.setup(Vector2(float(config["ball_x"]) * vp.x, vp.y * 0.82), skin["color"])
 
-	ring_sensor.position = Vector2(float(config["ring_x"]) * vp.x, float(config["ring_y"]) * vp.y)
-	ring_sensor.setup(float(config["ring_w"]) * vp.x)
+	ring_sensor.position = _random_ring_position(level_id, vp)
+	ring_sensor.setup(float(config["ring_w"]) * vp.x * 0.5)
 
-	aim_arrow.setup(vp.x * 0.12, vp.x * 0.88, vp.y * 0.62)
-
-	level_label.text = "Уровень %d" % level_id
 	_update_score_labels()
 
 	ring_sensor.scored.connect(_on_scored)
@@ -59,9 +60,22 @@ func _ready() -> void:
 	GameState.stars_changed.connect(func(_s): _update_score_labels())
 
 
+func _random_ring_position(seed_level_id: int, vp: Vector2) -> Vector2:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_level_id * 97 + 13
+	var col := rng.randi_range(0, GRID_COLS - 1)
+	var row := rng.randi_range(0, GRID_ROWS - 1)
+	var cell_w := (GRID_X_MAX - GRID_X_MIN) / GRID_COLS
+	var cell_h := (GRID_Y_MAX - GRID_Y_MIN) / GRID_ROWS
+	var jitter_x := rng.randf_range(0.2, 0.8)
+	var jitter_y := rng.randf_range(0.2, 0.8)
+	var fx := GRID_X_MIN + cell_w * (col + jitter_x)
+	var fy := GRID_Y_MIN + cell_h * (row + jitter_y)
+	return Vector2(fx * vp.x, fy * vp.y)
+
+
 func _update_score_labels() -> void:
-	score_label.text = "Очки: %d" % GameState.score
-	stars_label.text = "★ %d" % GameState.stars
+	score_stars_label.text = "Очки: %d   ★ %d" % [GameState.score, GameState.stars]
 
 
 func _on_scored() -> void:

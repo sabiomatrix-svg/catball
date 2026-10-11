@@ -1,61 +1,35 @@
 extends Node2D
 
-## "Бегающая стрелка слева-направо" — показывает текущее направление броска.
-## Замирает в момент тач-дауна по мячу (Ball.gd), это и есть прицеливание.
+## Дочерний узел мяча (см. Ball.gd). Рисует ровно тот вектор (направление +
+## длина = сила), который мяч получит при отпускании — никакой отдельной
+## "бегающей" анимации больше нет, стрелка полностью привязана к драгу.
 
-signal frozen
-signal unfrozen
-
-@export var speed_px_per_sec: float = 260.0
-
-var min_x: float = 0.0
-var max_x: float = 0.0
-var half_range: float = 1.0
-var is_frozen: bool = false
-var _direction: int = 1
+var max_length: float = 200.0
+var direction: Vector2 = Vector2.UP
+var current_length: float = 0.0
 
 
-func setup(min_x_value: float, max_x_value: float, fixed_y: float) -> void:
-	min_x = min_x_value
-	max_x = max_x_value
-	half_range = maxf(1.0, (max_x - min_x) / 2.0)
-	position = Vector2((min_x + max_x) / 2.0, fixed_y)
-	_direction = 1
+func configure(arrow_max_length: float) -> void:
+	max_length = arrow_max_length
 
 
-func _process(delta: float) -> void:
-	if is_frozen:
-		return
-	position.x += _direction * speed_px_per_sec * delta
-	if position.x >= max_x:
-		position.x = max_x
-		_direction = -1
-	elif position.x <= min_x:
-		position.x = min_x
-		_direction = 1
+func show_trajectory(aim_direction: Vector2, power: float) -> void:
+	direction = aim_direction
+	current_length = lerpf(max_length * 0.35, max_length, clampf(power, 0.0, 1.0))
+	visible = power > 0.04
 	queue_redraw()
 
 
-func freeze_arrow() -> void:
-	is_frozen = true
-	queue_redraw()
-	frozen.emit()
-
-
-func unfreeze_arrow() -> void:
-	is_frozen = false
-	queue_redraw()
-	unfrozen.emit()
+func hide_trajectory() -> void:
+	visible = false
 
 
 func _draw() -> void:
-	var color := Color(0.2, 0.9, 0.4) if is_frozen else Color(1.0, 0.85, 0.2)
-	var tri := PackedVector2Array([
-		Vector2(-16, -24),
-		Vector2(16, -24),
-		Vector2(0, 4),
-	])
-	draw_colored_polygon(tri, color)
-	var line_color := color
-	line_color.a = 0.35
-	draw_line(Vector2.ZERO, Vector2(0, 46), line_color, 3.0)
+	if current_length <= 0.0:
+		return
+	var tip := direction * current_length
+	var color := Color(0.25, 0.95, 0.45)
+	draw_line(Vector2.ZERO, tip, color, 7.0, true)
+	var perp := Vector2(-direction.y, direction.x) * 13.0
+	var back := tip - direction * 24.0
+	draw_colored_polygon(PackedVector2Array([tip, back + perp, back - perp]), color)
