@@ -35,12 +35,22 @@ func rearm() -> void:
 
 
 func _on_body_entered(body: Node) -> void:
+	# Временная диагностика попадания (видно в `adb logcat -s godot:V`):
+	# по жалобе "кот сел на коробку, но ничего не происходит" надо точно
+	# знать, доходит ли вообще сигнал и какой гейт его режет.
+	print("[RingSensor] body_entered name=", body.name,
+		" armed=", armed,
+		" in_ball_group=", body.is_in_group("ball"),
+		" body_pos=", (body as Node2D).global_position if body is Node2D else Vector2.ZERO,
+		" box_pos=", global_position,
+		" shape_radius=", (collision_shape.shape as CircleShape2D).radius)
 	if not armed:
 		return
 	if not body.is_in_group("ball"):
 		return
 	armed = false
 	scored.emit()
+	print("[RingSensor] scored emitted")
 
 
 func _draw() -> void:

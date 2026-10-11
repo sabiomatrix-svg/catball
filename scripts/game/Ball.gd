@@ -41,7 +41,7 @@ const FLIGHT_SPEED := 1400.0
 const MIN_FLIGHT_TIME := 0.18
 const MAX_FLIGHT_TIME := 1.1
 const LANDING_PAUSE_SECONDS := 0.6
-const BALL_RADIUS := 36.0
+const BALL_RADIUS := 54.0
 const LEAN_MAX_DEG := 22.0
 
 enum State { IDLE, CHARGING, FLYING, LANDED }
@@ -156,6 +156,8 @@ func _launch() -> void:
 	target.x = clampf(target.x, BALL_RADIUS, vp.x - BALL_RADIUS)
 	target.y = clampf(target.y, BALL_RADIUS, vp.y + 40.0)
 	var duration := clampf(distance / FLIGHT_SPEED, MIN_FLIGHT_TIME, MAX_FLIGHT_TIME)
+	print("[Ball] launch power=", power, " dist=", distance,
+		" from=", start_position, " target=", target, " dur=", duration)
 
 	_flight_tween = create_tween()
 	_flight_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

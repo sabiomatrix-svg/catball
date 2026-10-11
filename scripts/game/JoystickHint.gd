@@ -18,5 +18,5 @@ func _draw() -> void:
 		return
 	var ring_color := Color(1.0, 1.0, 1.0, 0.55)
 	var dot_color := Color(1.0, 1.0, 1.0, 0.35)
-	draw_arc(c, r * 0.82, deg_to_rad(12), deg_to_rad(348), 28, ring_color, r * 0.12, true)
+	draw_arc(c, r * 0.82, 0.0, TAU, 40, ring_color, r * 0.12, true)
 	draw_circle(c, r * 0.36, dot_color)

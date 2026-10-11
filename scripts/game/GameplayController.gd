@@ -12,7 +12,7 @@ const GRID_Y_MIN := 0.13
 const GRID_Y_MAX := 0.40
 const SCORE_REVEAL_PAUSE := 0.5
 
-@onready var background: Control = $Background
+@onready var background: Node2D = $Background
 @onready var ball: RigidBody2D = $Ball
 @onready var ring_sensor: Area2D = $RingSensor
 
@@ -85,6 +85,7 @@ func _update_score_labels() -> void:
 
 
 func _on_scored() -> void:
+	print("[GameplayController] _on_scored level=", level_id)
 	ball.stop_flight_in_place()
 	GameState.complete_level(level_id)
 	complete_text.text = "Level complete!\n+10 points, +3 stars"

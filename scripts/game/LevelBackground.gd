@@ -1,36 +1,41 @@
-extends Control
+extends Node2D
 
-## Тема фона меняется каждые LEVELS_PER_THEME уровней (комната → поле →
-## лес → снова комната...), сейчас есть только 10 уровней — все room,
-## но система уже готова расти вместе с data/levels.json.
+## Фон уровня. ВАЖНО: это Node2D, а не Control — узел лежит под корневым
+## Node2D сцены Game, а Control в таком родителе НЕ растягивается по
+## вьюпорту (анкеры считаются от родителя-Control; под Node2D размер
+## остаётся (0,0), и рисовать было буквально нечего — поэтому фона не было
+## видно вообще ни в одной сборке). Node2D рисует в координатах канваса,
+## размер берём прямо из вьюпорта.
+##
+## Тема меняется каждые LEVELS_PER_THEME уровней (комната → поле → лес →
+## снова комната...). Сейчас 10 уровней — все room, система готова расти
+## вместе с data/levels.json.
+##
+## Control уже имеет встроенное свойство "theme" (UI-тема), поэтому свои
+## enum/var названы SceneTheme/current_theme — на этом уже ловили
+## "Parse Error: shadows a native class".
 
 const LEVELS_PER_THEME := 10
 const THEME_COUNT := 3
 
-## Control уже имеет встроенное свойство "theme" (UI-тема, класс Theme) —
-## свои enum/var называем иначе, чтобы не перекрывать нативный класс
-## (на этом словил "Parse Error: shadows a native class" — скрипт не грузился
-## вообще, GameplayController падал на первой же строке _ready()).
 enum SceneTheme { ROOM, FIELD, FOREST }
 
 var current_theme: int = SceneTheme.ROOM
 
 
 func _ready() -> void:
-	resized.connect(queue_redraw)
+	get_viewport().size_changed.connect(queue_redraw)
 	queue_redraw()
 
 
 func set_theme_for_level(level_id: int) -> void:
 	var idx := int(float(level_id - 1) / LEVELS_PER_THEME) % THEME_COUNT
-	if idx == current_theme:
-		return
 	current_theme = idx
 	queue_redraw()
 
 
 func _draw() -> void:
-	var s := size
+	var s := get_viewport_rect().size
 	if s.x <= 0 or s.y <= 0:
 		return
 	match current_theme:
